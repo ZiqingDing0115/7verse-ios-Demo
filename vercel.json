@@ -1,0 +1,31 @@
+{
+  "rewrites": [
+    {
+      "source": "/api/7verse/:path*",
+      "destination": "https://uat.7verse.ai/api/v1/:path*"
+    },
+    {
+      "source": "/api/7verse-storage/:path*",
+      "destination": "https://uat.7verse.ai/api/v2/storage/:path*"
+    }
+  ],
+  "headers": [
+    {
+      "source": "/(.*)",
+      "headers": [
+        {
+          "key": "X-Content-Type-Options",
+          "value": "nosniff"
+        },
+        {
+          "key": "X-Frame-Options",
+          "value": "DENY"
+        },
+        {
+          "key": "X-XSS-Protection",
+          "value": "1; mode=block"
+        }
+      ]
+    }
+  ]
+}

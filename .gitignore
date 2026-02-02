@@ -1,0 +1,56 @@
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# Dependencies
+node_modules
+
+# Build output
+dist
+dist-ssr
+
+# Environment variables
+.env
+.env.local
+.env.*.local
+*.local
+
+# Editor directories and files
+.vscode/*
+!.vscode/extensions.json
+.idea
+.DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# Animation Playground (开发演示用)
+animation-playground.html
+animation-playground-pro.html
+
+# Components Playground (开发演示用)
+step2-components-playground.html
+step2-theme-playground.html
+
+# Test files
+api-test.html
+public/api-test.html
+
+# Development documentation (内部文档)
+API策略说明-稳定优先版.md
+API配置说明.md
+Prompt版本管理和测试记录.md
+README-测试指南.md
+后端架构设计.md
+新后端架构设计-Prompt优化版.md
+图生图模型评测表.md
+
+# Cursor plans
+.cursor/

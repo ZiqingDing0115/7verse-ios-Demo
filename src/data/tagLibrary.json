@@ -1,0 +1,175 @@
+{
+  "metadata": {
+    "version": "1.0.0",
+    "lastModified": "2026-02-02",
+    "totalTags": 100,
+    "categories": {
+      "basic": 34,
+      "persona": 33,
+      "relationship": 33
+    }
+  },
+  "tags": {
+    "basic": {
+      "title": "Visual Vibe",
+      "subtitle": "AI 从图片分析",
+      "count": 34,
+      "subcategories": {
+        "appearance": {
+          "title": "Appearance",
+          "tags": [
+            { "id": "b1", "label": "Stunning", "emoji": "✨" },
+            { "id": "b2", "label": "Cute", "emoji": "🐰" },
+            { "id": "b3", "label": "Hot", "emoji": "🔥" },
+            { "id": "b4", "label": "Soft", "emoji": "🧸" },
+            { "id": "b5", "label": "Sharp", "emoji": "🗡️" },
+            { "id": "b6", "label": "Rugged", "emoji": "🪨" },
+            { "id": "b7", "label": "Elegant", "emoji": "👑" },
+            { "id": "b8", "label": "Edgy", "emoji": "⚡" },
+            { "id": "b9", "label": "Innocent", "emoji": "🌸" },
+            { "id": "b10", "label": "Dangerous", "emoji": "☠️" }
+          ]
+        },
+        "style": {
+          "title": "Style/Aesthetic",
+          "tags": [
+            { "id": "b11", "label": "Dark-Academia", "emoji": "📚" },
+            { "id": "b12", "label": "Cottagecore", "emoji": "🌻" },
+            { "id": "b13", "label": "Cyberpunk", "emoji": "🤖" },
+            { "id": "b14", "label": "Y2K", "emoji": "💿" },
+            { "id": "b15", "label": "Grunge", "emoji": "🎸" },
+            { "id": "b16", "label": "Ethereal", "emoji": "🌙" },
+            { "id": "b17", "label": "Street", "emoji": "🛹" },
+            { "id": "b18", "label": "Vintage", "emoji": "📷" },
+            { "id": "b19", "label": "Minimalist", "emoji": "◽" },
+            { "id": "b20", "label": "Maximalist", "emoji": "🎪" },
+            { "id": "b31", "label": "Kawaii", "emoji": "🎀" },
+            { "id": "b32", "label": "Gothic", "emoji": "🦇" },
+            { "id": "b33", "label": "Vaporwave", "emoji": "🌴" },
+            { "id": "b34", "label": "Fairy-Tale", "emoji": "🏰" }
+          ]
+        },
+        "mood": {
+          "title": "Mood/Energy",
+          "tags": [
+            { "id": "b21", "label": "Golden-Hour", "emoji": "🌅" },
+            { "id": "b22", "label": "Moody", "emoji": "🌧️" },
+            { "id": "b23", "label": "Chaotic", "emoji": "🌀" },
+            { "id": "b24", "label": "Serene", "emoji": "🍃" },
+            { "id": "b25", "label": "Intense", "emoji": "👁️" },
+            { "id": "b26", "label": "Dreamy", "emoji": "☁️" },
+            { "id": "b27", "label": "Electric", "emoji": "⚡" },
+            { "id": "b28", "label": "Melancholic", "emoji": "🥀" },
+            { "id": "b29", "label": "Playful", "emoji": "🎈" },
+            { "id": "b30", "label": "Mysterious", "emoji": "🔮" }
+          ]
+        }
+      }
+    },
+    "persona": {
+      "title": "Persona",
+      "subtitle": "定义 TA 的性格",
+      "count": 33,
+      "subcategories": {
+        "personality": {
+          "title": "Personality Core",
+          "tags": [
+            { "id": "p1", "label": "Sunshine", "emoji": "☀️", "vibe": "小太阳，治愈系" },
+            { "id": "p2", "label": "Grumpy", "emoji": "😤", "vibe": "傲娇/嘴硬心软" },
+            { "id": "p3", "label": "Chaotic-Good", "emoji": "🃏", "vibe": "混乱善良，不按套路" },
+            { "id": "p4", "label": "Touch-Starved", "emoji": "🫂", "vibe": "渴望被爱" },
+            { "id": "p5", "label": "Morally-Grey", "emoji": "⚖️", "vibe": "亦正亦邪" },
+            { "id": "p6", "label": "Obsessive", "emoji": "🖤", "vibe": "占有欲强/偏执" },
+            { "id": "p7", "label": "Protective", "emoji": "🛡️", "vibe": "保护欲爆棚" },
+            { "id": "p8", "label": "Flirty", "emoji": "😏", "vibe": "撩人精" },
+            { "id": "p9", "label": "Stoic", "emoji": "🗿", "vibe": "面瘫/高冷" },
+            { "id": "p10", "label": "Unhinged", "emoji": "🔥", "vibe": "疯批美人" },
+            { "id": "p11", "label": "Devoted", "emoji": "💎", "vibe": "专一忠诚" },
+            { "id": "p12", "label": "Sarcastic", "emoji": "🙄", "vibe": "毒舌" },
+            { "id": "p13", "label": "Vulnerable", "emoji": "💔", "vibe": "外强中干" },
+            { "id": "p14", "label": "Brooding", "emoji": "🌑", "vibe": "阴郁深沉" },
+            { "id": "p15", "label": "Mischievous", "emoji": "🎭", "vibe": "爱玩爱闹" },
+            { "id": "p31", "label": "Tsundere", "emoji": "💢", "vibe": "傲娇经典款" },
+            { "id": "p32", "label": "Yandere", "emoji": "🔪", "vibe": "病娇/为爱痴狂" }
+          ]
+        },
+        "archetype": {
+          "title": "Identity/Archetype",
+          "tags": [
+            { "id": "p16", "label": "CEO-Energy", "emoji": "💼", "vibe": "霸总气场" },
+            { "id": "p17", "label": "Little-Wolf", "emoji": "🐺", "vibe": "小狼狗" },
+            { "id": "p18", "label": "Golden-Retriever", "emoji": "🐕", "vibe": "大金毛，阳光忠诚" },
+            { "id": "p19", "label": "Black-Cat", "emoji": "🐈‍⬛", "vibe": "高冷猫系" },
+            { "id": "p20", "label": "Mafia-Boss", "emoji": "🎰", "vibe": "黑道大佬" },
+            { "id": "p21", "label": "Idol", "emoji": "🎤", "vibe": "爱豆/明星" },
+            { "id": "p22", "label": "Genius", "emoji": "🧠", "vibe": "天才设定" },
+            { "id": "p23", "label": "Rebel", "emoji": "✊", "vibe": "叛逆者" },
+            { "id": "p24", "label": "Healer", "emoji": "💚", "vibe": "治愈者" },
+            { "id": "p25", "label": "Trickster", "emoji": "🦊", "vibe": "狐狸精/骗子" },
+            { "id": "p26", "label": "Villain", "emoji": "🦹", "vibe": "反派美学" },
+            { "id": "p27", "label": "Knight", "emoji": "⚔️", "vibe": "忠诚骑士" },
+            { "id": "p28", "label": "Royal", "emoji": "👸", "vibe": "皇室贵族" },
+            { "id": "p29", "label": "Outcast", "emoji": "🌙", "vibe": "边缘人/孤狼" },
+            { "id": "p30", "label": "Prodigy", "emoji": "⭐", "vibe": "天选之子" },
+            { "id": "p33", "label": "Himbo", "emoji": "💪😊", "vibe": "傻白甜肌肉男" }
+          ]
+        }
+      }
+    },
+    "relationship": {
+      "title": "Relationship",
+      "subtitle": "你在关系中的角色",
+      "count": 33,
+      "subcategories": {
+        "type": {
+          "title": "Relationship Type",
+          "tags": [
+            { "id": "r1", "label": "Soulmate", "emoji": "💞" },
+            { "id": "r2", "label": "Rival", "emoji": "⚔️" },
+            { "id": "r3", "label": "Frenemy", "emoji": "😈" },
+            { "id": "r4", "label": "Ex", "emoji": "💔" },
+            { "id": "r5", "label": "Secret-Crush", "emoji": "🤫" },
+            { "id": "r6", "label": "Forbidden", "emoji": "🚫" },
+            { "id": "r7", "label": "Childhood-Friend", "emoji": "🧒" },
+            { "id": "r8", "label": "Mentor", "emoji": "🎓" },
+            { "id": "r9", "label": "Situationship", "emoji": "🤷" },
+            { "id": "r10", "label": "Nemesis", "emoji": "🔥" },
+            { "id": "r33", "label": "Found-Family", "emoji": "🏠❤️", "vibe": "非血缘的家人" }
+          ]
+        },
+        "trope": {
+          "title": "Classic Tropes",
+          "tags": [
+            { "id": "r11", "label": "Enemies-to-Lovers", "emoji": "⚔️❤️", "vibe": "相爱相杀" },
+            { "id": "r12", "label": "Fake-Dating", "emoji": "💍", "vibe": "假戏真做" },
+            { "id": "r13", "label": "Slow-Burn", "emoji": "🕯️", "vibe": "细水长流" },
+            { "id": "r14", "label": "Love-Triangle", "emoji": "🔺", "vibe": "三角恋" },
+            { "id": "r15", "label": "Second-Chance", "emoji": "🔄", "vibe": "破镜重圆" },
+            { "id": "r16", "label": "Forced-Proximity", "emoji": "🏠", "vibe": "强制同居" },
+            { "id": "r17", "label": "Grumpy-Sunshine", "emoji": "🌤️", "vibe": "冰火组合" },
+            { "id": "r18", "label": "One-Bed", "emoji": "🛏️", "vibe": "只有一张床" },
+            { "id": "r19", "label": "He-Falls-First", "emoji": "📉", "vibe": "先动心的是他" },
+            { "id": "r20", "label": "Obsessive-Love", "emoji": "🖤", "vibe": "病娇式爱情" },
+            { "id": "r31", "label": "Friends-to-Lovers", "emoji": "👫❤️", "vibe": "友情升华" }
+          ]
+        },
+        "vibe": {
+          "title": "Relationship Vibe",
+          "tags": [
+            { "id": "r21", "label": "Simp-for-You", "emoji": "🥺", "vibe": "TA 对你无条件宠溺" },
+            { "id": "r22", "label": "Hard-to-Get", "emoji": "🙄", "vibe": "欲擒故纵" },
+            { "id": "r23", "label": "Whipped", "emoji": "🐶", "vibe": "完全被拿捏" },
+            { "id": "r24", "label": "Toxic", "emoji": "☠️", "vibe": "有毒但上头" },
+            { "id": "r25", "label": "Wholesome", "emoji": "🌈", "vibe": "纯爱/治愈" },
+            { "id": "r26", "label": "Chaotic", "emoji": "🔥", "vibe": "疯狂混乱" },
+            { "id": "r27", "label": "Telepathic", "emoji": "🧠", "vibe": "心有灵犀" },
+            { "id": "r28", "label": "Codependent", "emoji": "🔗", "vibe": "相互依赖" },
+            { "id": "r29", "label": "Push-Pull", "emoji": "🎢", "vibe": "拉扯/若即若离" },
+            { "id": "r30", "label": "Ride-or-Die", "emoji": "💀", "vibe": "生死相依" },
+            { "id": "r32", "label": "Stalker-Vibes", "emoji": "👁️‍🗨️", "vibe": "TA 一直在看着你" }
+          ]
+        }
+      }
+    }
+  }
+}

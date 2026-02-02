@@ -1,0 +1,152 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* 隐藏滚动条但保持滚动功能 */
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* 语音波形动画 - 用于 TTS 说话时的视觉效果 */
+@keyframes voiceWave {
+  0%, 100% {
+    transform: scaleY(0.5);
+    opacity: 0.6;
+  }
+  50% {
+    transform: scaleY(1);
+    opacity: 1;
+  }
+}
+
+.voice-wave {
+  animation: voiceWave 1.2s ease-in-out infinite;
+}
+
+/* Shimmer Effect - 高级加载动效 */
+.shimmer-wrapper {
+  position: relative;
+  overflow: hidden;
+  background: linear-gradient(90deg, 
+    rgba(255, 255, 255, 0.05) 0%, 
+    rgba(255, 255, 255, 0.1) 50%, 
+    rgba(255, 255, 255, 0.05) 100%
+  );
+  background-size: 200% 100%;
+  animation: shimmer-slide 2s ease-in-out infinite;
+}
+
+/* Wave Loader - 波浪加载动画 */
+.wave-loader {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  justify-content: center;
+}
+
+.wave-loader span {
+  width: 8px;
+  height: 40px;
+  background: linear-gradient(to bottom, #8b5cf6, #ec4899);
+  border-radius: 4px;
+  animation: wave-animation 1.2s ease-in-out infinite;
+}
+
+.wave-loader span:nth-child(1) { animation-delay: 0s; }
+.wave-loader span:nth-child(2) { animation-delay: 0.1s; }
+.wave-loader span:nth-child(3) { animation-delay: 0.2s; }
+.wave-loader span:nth-child(4) { animation-delay: 0.3s; }
+.wave-loader span:nth-child(5) { animation-delay: 0.4s; }
+
+@keyframes wave-animation {
+  0%, 100% { 
+    height: 12px; 
+    opacity: 0.4; 
+  }
+  50% { 
+    height: 40px; 
+    opacity: 1; 
+  }
+}
+
+@keyframes shimmer-slide {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+.shimmer-line {
+  height: 12px;
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.1);
+  position: relative;
+  overflow: hidden;
+}
+
+.shimmer-line::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, 
+    transparent, 
+    rgba(255, 255, 255, 0.3), 
+    transparent
+  );
+  animation: shimmer-move 1.5s infinite;
+}
+
+@keyframes shimmer-move {
+  0% {
+    left: -100%;
+  }
+  100% {
+    left: 100%;
+  }
+}
+
+.shimmer-circle {
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.1);
+  position: relative;
+  overflow: hidden;
+}
+
+.shimmer-circle::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, 
+    transparent, 
+    rgba(255, 255, 255, 0.3), 
+    transparent
+  );
+  animation: shimmer-move 1.5s infinite;
+}

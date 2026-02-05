@@ -458,11 +458,15 @@ Please analyze the character and select the best script with a detailed video pr
   async mockRecommendTags() {
     console.log('🔧 使用默认标签推荐');
     
-    const defaultTags = ['Professional', 'Creative', 'Warm', 'Modern', 'Friendly', 'Cinematic', 'Natural'];
+    // 使用标签库中实际存在的标签
+    const defaultPersonaTags = ['Mysterious', 'Prince', 'Vampire', 'CEO', 'Artist', 'Model'];
+    const defaultRelationship = 'Secret-Admirer';
     
     return {
       success: true,
-      tags: defaultTags,
+      tags: [...defaultPersonaTags, defaultRelationship],
+      personaTags: defaultPersonaTags,
+      relationshipTag: defaultRelationship,
       duration: '0.0s',
       method: 'default',
     };

@@ -1,91 +1,96 @@
-import { call7verseAPI, uploadImageToImgbb } from '../config/api';
+import { callFluxAPI } from '../config/api';
 
-// 图生图服务 - 使用 7verse API
+// 图生图服务 - 使用 Flux API（flux2.vivix.work）
 export const imageService = {
-  // 调用 7verse API 生成 4 张风格图
-  async generateImage(formData, prompts) {
+  
+  // 调用 Flux API 生成图片
+  // onImageGenerated: 回调函数，每生成一张图就调用，参数 (image, index)
+  async generateImage(formData, promptConfig, onImageGenerated = null) {
     const startTime = performance.now();
     
-    console.log('🚀 开始调用 7verse 图生图 API...');
-    console.log('📝 Prompts 数量:', prompts.length);
+    const prompts = promptConfig.prompts || [];
+    
+    console.log('🚀 开始调用 Flux 图生图 API...');
+    console.log(`📝 共 ${prompts.length} 个风格需要生成`);
     
     try {
-      const TEST_IMAGE_URL = 'https://p02-be-dev-1305923417.cos.accelerate.myqcloud.com/creator/images/3fe7f8d9-61eb-4f8d-8f63-96b07c7b0500/20260115/a2eeef40.png';
+      // ===== 获取用户上传的图片（base64 格式）=====
+      let imageBase64 = formData.uploadedImage;
       
-      // ===== 步骤 1: 预先上传用户图片获取 URL =====
-      // 7verse 只支持 ref_image_url_list，不支持 base64
-      let refImageUrl = null;
-      
-      if (formData.uploadedImage && formData.uploadedImage.startsWith('data:image')) {
-        console.log('🖼️ 检测到用户上传的 base64 图片，正在上传到图床...');
-        refImageUrl = await uploadImageToImgbb(formData.uploadedImage);
-        
-        if (refImageUrl) {
-          console.log('✅ 用户图片上传成功！URL:', refImageUrl.substring(0, 60) + '...');
-          // 保存 URL 供后续使用（避免重复上传）
-          formData.uploadedImageUrl = refImageUrl;
-        } else {
-          console.warn('⚠️ 图片上传失败，将使用测试图片');
-          refImageUrl = TEST_IMAGE_URL;
-        }
-      } else if (formData.uploadedImageUrl) {
-        console.log('🖼️ 使用已有的图片 URL:', formData.uploadedImageUrl.substring(0, 60) + '...');
-        refImageUrl = formData.uploadedImageUrl;
-      } else {
-        console.log('⚠️ 无用户图片，使用测试图片进行图生图');
-        refImageUrl = TEST_IMAGE_URL;
+      if (!imageBase64 || !imageBase64.startsWith('data:image')) {
+        console.error('❌ 没有找到用户上传的图片');
+        throw new Error('请先上传图片');
       }
       
-      console.log('🔗 最终使用的参考图片 URL:', refImageUrl);
+      console.log('🖼️ 使用用户上传的 base64 图片');
       
       const results = [];
       
-      // ===== 步骤 2: 串行生成 4 张图片（复用同一个 URL） =====
+      // ===== 步骤 1: 图片 1 为原图（立即返回）=====
+      console.log('📷 图片 1: 保留原图');
+      const originalImage = {
+        id: 1,
+        url: imageBase64,  // 原图用 base64
+        prompt: 'Original image',
+        duration: '0.0s',
+        type: 'original',
+        label: 'Original',
+      };
+      results.push(originalImage);
+      
+      // 立即回调原图
+      if (onImageGenerated) {
+        onImageGenerated(originalImage, 0);
+      }
+      
+      // ===== 步骤 2: 为每个 prompt 调用 Flux API =====
       for (let i = 0; i < prompts.length; i++) {
-        const prompt = prompts[i];
-        console.log(`🎨 生成图片 ${i + 1}/${prompts.length}...`);
-        console.log(`   Prompt: ${prompt.substring(0, 60)}...`);
+        const promptItem = prompts[i];
+        const promptText = promptItem.prompt || promptItem;
+        const styleLabel = promptItem.style || `Style ${i + 1}`;
         
-        // 直接传 URL，不再传 base64
-        const result = await call7verseAPI(prompt, refImageUrl, 1);
+        console.log(`🎨 生成图片 ${i + 2}/${prompts.length + 1}: ${styleLabel}`);
+        console.log(`   Prompt: ${promptText.substring(0, 60)}...`);
         
-        if (result.success && result.data) {
-          // 解析 7verse 返回的图片数据
-          const imageUrl = this.extractImageUrl(result.data);
+        const result = await callFluxAPI(promptText, imageBase64, 1024, 1024);
+        
+        if (result.success && result.imageBase64) {
+          console.log(`✅ 图片 ${i + 2} 生成成功，耗时: ${result.duration}`);
+          const generatedImage = {
+            id: i + 2,
+            url: result.imageBase64,  // Flux 返回 base64
+            prompt: promptText,
+            duration: result.duration,
+            type: 'generated',
+            style: styleLabel,
+            label: styleLabel,
+          };
+          results.push(generatedImage);
           
-          if (imageUrl) {
-            console.log(`✅ 图片 ${i + 1} 生成成功，耗时: ${result.duration}`);
-            results.push({
-              id: i + 1,
-              url: imageUrl,
-              prompt: prompt,
-              duration: result.duration,
-              type: 'generated',
-            });
-          } else {
-            console.warn(`⚠️ 图片 ${i + 1} 返回数据异常:`, result.data);
-            results.push({
-              id: i + 1,
-              url: null,
-              prompt: prompt,
-              error: '返回数据异常',
-              type: 'error',
-            });
+          // 每生成一张就回调
+          if (onImageGenerated) {
+            onImageGenerated(generatedImage, i + 1);
           }
         } else {
-          console.error(`❌ 图片 ${i + 1} 生成失败:`, result.error);
-          results.push({
-            id: i + 1,
+          console.error(`❌ 图片 ${i + 2} 生成失败:`, result.error);
+          const errorImage = {
+            id: i + 2,
             url: null,
-            prompt: prompt,
+            prompt: promptText,
             error: result.error || '生成失败',
             type: 'error',
-          });
+          };
+          results.push(errorImage);
+          
+          // 失败也回调
+          if (onImageGenerated) {
+            onImageGenerated(errorImage, i + 1);
+          }
         }
         
-        // 等待 500ms 避免请求过快
+        // 避免请求过快
         if (i < prompts.length - 1) {
-          await new Promise(resolve => setTimeout(resolve, 500));
+          await new Promise(resolve => setTimeout(resolve, 300));
         }
       }
       
@@ -93,7 +98,7 @@ export const imageService = {
       const totalDuration = ((endTime - startTime) / 1000).toFixed(2);
       
       const successCount = results.filter(r => r.url).length;
-      console.log(`🎉 图片生成完成！成功 ${successCount}/${prompts.length}，总耗时: ${totalDuration}s`);
+      console.log(`🎉 图片生成完成！成功 ${successCount}/${prompts.length + 1}（原图 1 张 + 风格迁移 ${prompts.length} 张），总耗时: ${totalDuration}s`);
       
       return {
         success: true,
@@ -101,84 +106,45 @@ export const imageService = {
         generatedImages: results,
         duration: totalDuration + 's',
         successCount,
-        totalCount: prompts.length,
+        totalCount: prompts.length + 1,
+        originalCount: 1,
+        generatedCount: prompts.length,
         isMock: false,
-        modelId: '7verse-seedream',
+        modelId: 'flux-vivix',
       };
     } catch (error) {
       console.error('❌ 图生图服务异常:', error);
-      return this.mockGenerate(formData, prompts);
+      return this.mockGenerate(formData, promptConfig);
     }
-  },
-
-  // 从 7verse 响应中提取图片 URL
-  extractImageUrl(responseData) {
-    if (!responseData) return null;
-    
-    // 7verse UAT 返回格式:
-    // { ok: true, data: { image_list: [{ image_id: "...", image_url: "..." }] } }
-    
-    // 优先处理 7verse 的标准格式
-    if (responseData.ok && responseData.data?.image_list?.length > 0) {
-      const img = responseData.data.image_list[0];
-      console.log('✅ 解析 7verse image_list 格式:', img.image_url);
-      return img.image_url || img.url;
-    }
-    
-    // data.image_list 格式（不带 ok 字段）
-    if (responseData.data?.image_list?.length > 0) {
-      const img = responseData.data.image_list[0];
-      return img.image_url || img.url;
-    }
-    
-    // image_list 格式
-    if (responseData.image_list?.length > 0) {
-      const img = responseData.image_list[0];
-      return img.image_url || img.url;
-    }
-    
-    // 其他可能的格式
-    if (responseData.images && responseData.images.length > 0) {
-      const img = responseData.images[0];
-      return typeof img === 'string' ? img : (img.url || img.image_url);
-    }
-    
-    if (responseData.data?.images && responseData.data.images.length > 0) {
-      const img = responseData.data.images[0];
-      return typeof img === 'string' ? img : (img.url || img.image_url);
-    }
-    
-    if (responseData.result?.images && responseData.result.images.length > 0) {
-      const img = responseData.result.images[0];
-      return typeof img === 'string' ? img : (img.url || img.image_url);
-    }
-    
-    if (responseData.url) return responseData.url;
-    if (responseData.image_url) return responseData.image_url;
-    if (responseData.image) return responseData.image;
-    
-    // 如果响应本身是数组
-    if (Array.isArray(responseData) && responseData.length > 0) {
-      const img = responseData[0];
-      return typeof img === 'string' ? img : (img.url || img.image_url);
-    }
-    
-    console.warn('⚠️ 无法解析图片 URL，原始数据:', JSON.stringify(responseData).substring(0, 200));
-    return null;
   },
 
   // 模拟生成（备用）
-  async mockGenerate(formData, prompts) {
+  async mockGenerate(formData, promptConfig) {
     console.log('🔧 使用模拟模式生成图片');
     
-    const mockImages = prompts.map((prompt, index) => ({
-      id: index + 1,
+    const imageCount = promptConfig.prompts?.length || 3;
+    
+    const mockImages = [];
+    // 原图
+    mockImages.push({
+      id: 1,
       url: formData.uploadedImage,
-      prompt: prompt,
+      prompt: 'Original',
       duration: '0.0s',
-      type: 'mock',
-      isMock: true,
-    }));
+      type: 'original',
+    });
+    
+    // 模拟生成图
+    for (let i = 0; i < imageCount; i++) {
+      mockImages.push({
+        id: i + 2,
+        url: formData.uploadedImage,
+        prompt: promptConfig.prompts?.[i] || `Style ${i + 1}`,
+        duration: '0.0s',
+        type: 'mock',
+        isMock: true,
+      });
+    }
 
     return {
       success: true,
@@ -217,9 +183,9 @@ export const imageService = {
 // 获取当前使用的模型信息
 export function getCurrentModel() {
   return {
-    id: '7verse-seedream',
-    name: '7verse Seedream',
-    provider: '7verse',
-    features: ['文生图', '图生图'],
+    id: 'flux-vivix',
+    name: 'Flux (vivix.work)',
+    provider: 'Vivix',
+    features: ['图生图', '风格迁移'],
   };
 }

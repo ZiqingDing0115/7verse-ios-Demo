@@ -1,0 +1,266 @@
+{
+  "version": "2.0",
+  "lastUpdated": "2026-02-04",
+  "designPrinciples": [
+    "English only",
+    "Descriptive adjectives instead of names",
+    "Diverse: non-human, children, elderly"
+  ],
+  "voices": [
+    {
+      "id": "EXAVITQu4vr4xnSDxMaL",
+      "name": "Sweet Girl",
+      "gender": "Female",
+      "tags": [
+        "Sweet",
+        "Young",
+        "Gentle",
+        "English"
+      ],
+      "description": "Soft and sweet young female, like your friendly neighbor",
+      "matchingPersona": [
+        "Gentle",
+        "Playful",
+        "Sunshine"
+      ]
+    },
+    {
+      "id": "21m00Tcm4TlvDq8ikWAM",
+      "name": "Mature Lady",
+      "gender": "Female",
+      "tags": [
+        "Mature",
+        "Calm",
+        "Professional",
+        "English"
+      ],
+      "description": "Sophisticated mature female, calm and composed",
+      "matchingPersona": [
+        "Elegant",
+        "Professional",
+        "Mentor"
+      ]
+    },
+    {
+      "id": "AZnzlk1XvdvUeBnXmlld",
+      "name": "Fierce Queen",
+      "gender": "Female",
+      "tags": [
+        "Strong",
+        "Bold",
+        "Fierce",
+        "English"
+      ],
+      "description": "Powerful and commanding, a true queen",
+      "matchingPersona": [
+        "Bold",
+        "Dominant",
+        "Villain"
+      ]
+    },
+    {
+      "id": "MF3mGyEYCl7XYWbV9V6O",
+      "name": "Bubbly Teen",
+      "gender": "Female",
+      "tags": [
+        "Young",
+        "Bubbly",
+        "Energetic",
+        "English"
+      ],
+      "description": "Enthusiastic teenage energy, full of life",
+      "matchingPersona": [
+        "Playful",
+        "Chaotic",
+        "Tsundere"
+      ]
+    },
+    {
+      "id": "jsCqWAovK2LkecY7zXl4",
+      "name": "Wise Grandma",
+      "gender": "Female",
+      "tags": [
+        "Elderly",
+        "Warm",
+        "Wise",
+        "English"
+      ],
+      "description": "Loving grandmother voice, warm and nurturing",
+      "matchingPersona": [
+        "Protective",
+        "Mentor",
+        "Gentle"
+      ]
+    },
+    {
+      "id": "ErXwobaYiN019PkySvjV",
+      "name": "Alpha Male",
+      "gender": "Male",
+      "tags": [
+        "Deep",
+        "Dominant",
+        "Powerful",
+        "English"
+      ],
+      "description": "Deep commanding voice, natural leader",
+      "matchingPersona": [
+        "CEO",
+        "Mafia-Boss",
+        "Villain"
+      ]
+    },
+    {
+      "id": "VR6AewLTigWG4xSOukaG",
+      "name": "Dark Lord",
+      "gender": "Male",
+      "tags": [
+        "Gravelly",
+        "Mysterious",
+        "Intense",
+        "English"
+      ],
+      "description": "Gravelly intense voice, perfect for villains",
+      "matchingPersona": [
+        "Demon",
+        "Vampire",
+        "Mysterious"
+      ]
+    },
+    {
+      "id": "pNInz6obpgDQGcFmaJgB",
+      "name": "Gentle Giant",
+      "gender": "Male",
+      "tags": [
+        "Deep",
+        "Warm",
+        "Friendly",
+        "English"
+      ],
+      "description": "Deep but warm, like a protective big brother",
+      "matchingPersona": [
+        "Protector",
+        "Knight",
+        "Reliable"
+      ]
+    },
+    {
+      "id": "yoZ06aMxZJJ28mfd3POQ",
+      "name": "Playful Boy",
+      "gender": "Male",
+      "tags": [
+        "Young",
+        "Energetic",
+        "Playful",
+        "English"
+      ],
+      "description": "Youthful energetic male, fun and spontaneous",
+      "matchingPersona": [
+        "Playful",
+        "Mischievous",
+        "Idol"
+      ]
+    },
+    {
+      "id": "TxGEqnHWrfWFTfGW9XjX",
+      "name": "Grumpy Old Man",
+      "gender": "Male",
+      "tags": [
+        "Elderly",
+        "Gruff",
+        "Wise",
+        "English"
+      ],
+      "description": "Grumpy but lovable old man, secretly caring",
+      "matchingPersona": [
+        "Grumpy",
+        "Mentor",
+        "Stoic"
+      ]
+    },
+    {
+      "id": "flq6f7yk4E4fJM5XTYuZ",
+      "name": "Robot Butler",
+      "gender": "Neutral",
+      "tags": [
+        "Robotic",
+        "Precise",
+        "Polite",
+        "English"
+      ],
+      "description": "Precise robotic voice, helpful AI assistant",
+      "matchingPersona": [
+        "Android",
+        "Professional",
+        "Hacker"
+      ]
+    },
+    {
+      "id": "XB0fDUnXU5powFXDhCwa",
+      "name": "Mischievous Imp",
+      "gender": "Neutral",
+      "tags": [
+        "Quirky",
+        "Mischievous",
+        "Playful",
+        "English"
+      ],
+      "description": "Impish and playful, full of tricks",
+      "matchingPersona": [
+        "Demon",
+        "Chaotic",
+        "Mischievous"
+      ]
+    },
+    {
+      "id": "onwK4e9ZLuTAKqWW03F9",
+      "name": "Tiny Fairy",
+      "gender": "Female",
+      "tags": [
+        "Tiny",
+        "Magical",
+        "Cute",
+        "English"
+      ],
+      "description": "High-pitched magical creature, ethereal",
+      "matchingPersona": [
+        "Elf",
+        "Angel",
+        "Fairycore"
+      ]
+    },
+    {
+      "id": "g5CIjZEefAph4nQFvHAz",
+      "name": "Spooky Ghost",
+      "gender": "Neutral",
+      "tags": [
+        "Eerie",
+        "Whisper",
+        "Mysterious",
+        "English"
+      ],
+      "description": "Haunting whisper, ethereal presence",
+      "matchingPersona": [
+        "Ghost",
+        "Mysterious",
+        "Fallen-Angel"
+      ]
+    },
+    {
+      "id": "SOYHLrjzK2X1ezoPC6cr",
+      "name": "Tiny Kid",
+      "gender": "Neutral",
+      "tags": [
+        "Child",
+        "Innocent",
+        "Cute",
+        "English"
+      ],
+      "description": "Adorable child voice, pure innocence",
+      "matchingPersona": [
+        "Playful",
+        "Innocent",
+        "Sunshine"
+      ]
+    }
+  ]
+}

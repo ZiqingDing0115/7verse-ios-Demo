@@ -54,3 +54,6 @@ README-测试指南.md
 
 # Cursor plans
 .cursor/
+
+# Local Netlify folder
+.netlify

@@ -1,7 +1,6 @@
 import React, { useRef, useState, useEffect } from 'react';
 import { useAppContext } from '../context/AppContext';
 import StepLayout from '../components/StepLayout';
-import { imageService } from '../services/imageService';
 
 // 第一步：拍照/上传图片
 const Step1TakePicture = () => {
@@ -12,6 +11,7 @@ const Step1TakePicture = () => {
   const [preview, setPreview] = useState(formData.uploadedImage);
   const [isCameraMode, setIsCameraMode] = useState(false);
   const [stream, setStream] = useState(null);
+  const [facingMode, setFacingMode] = useState('user'); // 'user' 前置, 'environment' 后置
 
   // 清理摄像头流
   useEffect(() => {
@@ -22,18 +22,61 @@ const Step1TakePicture = () => {
     };
   }, [stream]);
 
-  // 处理文件选择
+  // 处理文件选择 - 保持高质量
   const handleFileChange = (e) => {
     const file = e.target.files[0];
     if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        const imageData = reader.result;
-        setPreview(imageData);
-        updateFormData('uploadedImage', imageData);
-        closeCameraMode();
-      };
-      reader.readAsDataURL(file);
+      // 检查文件大小，如果超过 5MB 则进行适当压缩
+      const maxSize = 5 * 1024 * 1024; // 5MB
+      
+      if (file.size > maxSize) {
+        // 大图需要压缩
+        const img = new Image();
+        const reader = new FileReader();
+        
+        reader.onload = (event) => {
+          img.onload = () => {
+            const canvas = document.createElement('canvas');
+            const maxDimension = 2048; // 最大边长
+            
+            let width = img.width;
+            let height = img.height;
+            
+            // 按比例缩放
+            if (width > height && width > maxDimension) {
+              height = (height * maxDimension) / width;
+              width = maxDimension;
+            } else if (height > maxDimension) {
+              width = (width * maxDimension) / height;
+              height = maxDimension;
+            }
+            
+            canvas.width = width;
+            canvas.height = height;
+            
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(img, 0, 0, width, height);
+            
+            // 高质量 JPEG
+            const imageData = canvas.toDataURL('image/jpeg', 0.92);
+            setPreview(imageData);
+            updateFormData('uploadedImage', imageData);
+            closeCameraMode();
+          };
+          img.src = event.target.result;
+        };
+        reader.readAsDataURL(file);
+      } else {
+        // 小图直接使用原始数据
+        const reader = new FileReader();
+        reader.onloadend = () => {
+          const imageData = reader.result;
+          setPreview(imageData);
+          updateFormData('uploadedImage', imageData);
+          closeCameraMode();
+        };
+        reader.readAsDataURL(file);
+      }
     }
   };
 
@@ -45,9 +88,26 @@ const Step1TakePicture = () => {
   // 打开摄像头
   const handleCameraClick = async () => {
     try {
-      const cameraStream = await imageService.captureFromCamera();
+      const cameraStream = await startCamera(facingMode);
       setStream(cameraStream);
       setIsCameraMode(true);
+    } catch (error) {
+      alert(error.message);
+    }
+  };
+
+  // 启动摄像头
+  const startCamera = async (mode) => {
+    try {
+      // 先停止现有的流
+      if (stream) {
+        stream.getTracks().forEach(track => track.stop());
+      }
+      
+      const cameraStream = await navigator.mediaDevices.getUserMedia({ 
+        video: { facingMode: mode, width: { ideal: 1080 }, height: { ideal: 1920 } },
+        audio: false
+      });
       
       // 等待 video 元素加载
       setTimeout(() => {
@@ -55,8 +115,23 @@ const Step1TakePicture = () => {
           videoRef.current.srcObject = cameraStream;
         }
       }, 100);
+      
+      return cameraStream;
     } catch (error) {
-      alert(error.message);
+      console.error('无法访问摄像头:', error);
+      throw new Error('无法访问摄像头，请检查权限设置');
+    }
+  };
+
+  // 切换前后摄像头
+  const handleSwitchCamera = async () => {
+    const newMode = facingMode === 'user' ? 'environment' : 'user';
+    setFacingMode(newMode);
+    try {
+      const cameraStream = await startCamera(newMode);
+      setStream(cameraStream);
+    } catch (error) {
+      console.error('切换摄像头失败:', error);
     }
   };
 
@@ -70,9 +145,19 @@ const Step1TakePicture = () => {
       canvas.height = video.videoHeight;
       
       const ctx = canvas.getContext('2d');
+      
+      // 前置摄像头需要水平翻转
+      if (facingMode === 'user') {
+        ctx.translate(canvas.width, 0);
+        ctx.scale(-1, 1);
+      }
+      
       ctx.drawImage(video, 0, 0);
       
-      const imageData = canvas.toDataURL('image/jpeg', 0.9);
+      // 重置变换
+      ctx.setTransform(1, 0, 0, 1, 0, 0);
+      
+      const imageData = canvas.toDataURL('image/jpeg', 0.95);
       setPreview(imageData);
       updateFormData('uploadedImage', imageData);
       closeCameraMode();
@@ -131,14 +216,33 @@ const Step1TakePicture = () => {
                 ref={videoRef}
                 autoPlay
                 playsInline
+                muted
                 className="w-full h-full object-cover"
+                style={{ transform: facingMode === 'user' ? 'scaleX(-1)' : 'none' }}
               />
               {/* 拍照按钮 */}
-              <div className="absolute bottom-32 left-0 right-0 flex justify-center">
+              <div className="absolute bottom-32 left-0 right-0 flex justify-center gap-6 items-center">
+                {/* 取消按钮 */}
+                <button
+                  onClick={closeCameraMode}
+                  className="w-14 h-14 bg-white/10 backdrop-blur-sm rounded-full flex items-center justify-center hover:bg-white/20 transition-colors"
+                >
+                  <span className="text-white text-2xl">×</span>
+                </button>
+                {/* 拍照按钮 */}
                 <button
                   onClick={handleCapture}
-                  className="w-20 h-20 bg-white rounded-full border-[6px] border-white/30 hover:scale-105 transition-transform"
+                  className="w-20 h-20 bg-white rounded-full border-[6px] border-white/30 hover:scale-105 transition-transform shadow-xl"
                 />
+                {/* 切换摄像头按钮 */}
+                <button
+                  onClick={handleSwitchCamera}
+                  className="w-14 h-14 bg-white/10 backdrop-blur-sm rounded-full flex items-center justify-center hover:bg-white/20 transition-colors"
+                >
+                  <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                  </svg>
+                </button>
               </div>
             </>
           ) : preview ? (
@@ -181,11 +285,22 @@ const Step1TakePicture = () => {
                 </svg>
               </button>
 
-              {/* 拍照按钮 */}
-              <button 
-                onClick={handleCameraClick}
-                className="w-20 h-20 bg-white rounded-full border-4 border-white/30 hover:scale-105 transition-transform shadow-lg"
-              />
+              {/* 中间按钮：有图时显示 Retake，无图时显示拍照 */}
+              {preview ? (
+                <button 
+                  onClick={handleClear}
+                  className="w-20 h-20 bg-white/10 backdrop-blur-sm rounded-full border-2 border-white/30 hover:bg-white/20 transition-all flex items-center justify-center"
+                >
+                  <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                  </svg>
+                </button>
+              ) : (
+                <button 
+                  onClick={handleCameraClick}
+                  className="w-20 h-20 bg-white rounded-full border-4 border-white/30 hover:scale-105 transition-transform shadow-lg"
+                />
+              )}
 
               {/* 切换镜头按钮 */}
               <button 

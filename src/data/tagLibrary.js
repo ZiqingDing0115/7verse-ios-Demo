@@ -1,211 +1,283 @@
 // ============================================================================
-// Tag Library - 三层标签体系 (共 100 个标签)
+// Tag Library - 多层标签体系 v2.3
 // ============================================================================
-// Tier 1: Basic Tags (34) - 从图片直接解析的视觉特征
-// Tier 2: Persona Tags (33) - 人设/性格特征（通过对话展现）
-// Tier 3: Relationship Tags (33) - 社交关系动态
-// ============================================================================
-
-// ============================================================================
-// Tier 1: Basic Tags - 视觉分析层 (30)
-// AI 可以从图片直接推断
+// 按产品视角重新组织，参考 Janitor AI / Character AI 等竞品
+// 新增维度：gender（角色性别）、targeting（面向用户）、vibe（氛围/互动风格）、zodiac（星座）
 // ============================================================================
 
-export const basicTags = [
-  // === Appearance Vibe (10) ===
-  { id: 'b1', label: 'Stunning', emoji: '✨', category: 'basic', subcategory: 'appearance' },
-  { id: 'b2', label: 'Cute', emoji: '🐰', category: 'basic', subcategory: 'appearance' },
-  { id: 'b3', label: 'Hot', emoji: '🔥', category: 'basic', subcategory: 'appearance' },
-  { id: 'b4', label: 'Soft', emoji: '🧸', category: 'basic', subcategory: 'appearance' },
-  { id: 'b5', label: 'Sharp', emoji: '🗡️', category: 'basic', subcategory: 'appearance' },
-  { id: 'b6', label: 'Rugged', emoji: '🪨', category: 'basic', subcategory: 'appearance' },
-  { id: 'b7', label: 'Elegant', emoji: '👑', category: 'basic', subcategory: 'appearance' },
-  { id: 'b8', label: 'Edgy', emoji: '⚡', category: 'basic', subcategory: 'appearance' },
-  { id: 'b9', label: 'Innocent', emoji: '🌸', category: 'basic', subcategory: 'appearance' },
-  { id: 'b10', label: 'Dangerous', emoji: '☠️', category: 'basic', subcategory: 'appearance' },
-
-  // === Style/Aesthetic (10) ===
-  { id: 'b11', label: 'Dark-Academia', emoji: '📚', category: 'basic', subcategory: 'style' },
-  { id: 'b12', label: 'Cottagecore', emoji: '🌻', category: 'basic', subcategory: 'style' },
-  { id: 'b13', label: 'Cyberpunk', emoji: '🤖', category: 'basic', subcategory: 'style' },
-  { id: 'b14', label: 'Y2K', emoji: '💿', category: 'basic', subcategory: 'style' },
-  { id: 'b15', label: 'Grunge', emoji: '🎸', category: 'basic', subcategory: 'style' },
-  { id: 'b16', label: 'Ethereal', emoji: '🌙', category: 'basic', subcategory: 'style' },
-  { id: 'b17', label: 'Street', emoji: '🛹', category: 'basic', subcategory: 'style' },
-  { id: 'b18', label: 'Vintage', emoji: '📷', category: 'basic', subcategory: 'style' },
-  { id: 'b19', label: 'Minimalist', emoji: '◽', category: 'basic', subcategory: 'style' },
-  { id: 'b20', label: 'Maximalist', emoji: '🎪', category: 'basic', subcategory: 'style' },
-
-  // === Mood/Energy (10) ===
-  { id: 'b21', label: 'Golden-Hour', emoji: '🌅', category: 'basic', subcategory: 'mood' },
-  { id: 'b22', label: 'Moody', emoji: '🌧️', category: 'basic', subcategory: 'mood' },
-  { id: 'b23', label: 'Chaotic', emoji: '🌀', category: 'basic', subcategory: 'mood' },
-  { id: 'b24', label: 'Serene', emoji: '🍃', category: 'basic', subcategory: 'mood' },
-  { id: 'b25', label: 'Intense', emoji: '👁️', category: 'basic', subcategory: 'mood' },
-  { id: 'b26', label: 'Dreamy', emoji: '☁️', category: 'basic', subcategory: 'mood' },
-  { id: 'b27', label: 'Electric', emoji: '⚡', category: 'basic', subcategory: 'mood' },
-  { id: 'b28', label: 'Melancholic', emoji: '🥀', category: 'basic', subcategory: 'mood' },
-  { id: 'b29', label: 'Playful', emoji: '🎈', category: 'basic', subcategory: 'mood' },
-  { id: 'b30', label: 'Mysterious', emoji: '🔮', category: 'basic', subcategory: 'mood' },
-
-  // === NEW: Extra Styles (4) ===
-  { id: 'b31', label: 'Kawaii', emoji: '🎀', category: 'basic', subcategory: 'style' },
-  { id: 'b32', label: 'Gothic', emoji: '🦇', category: 'basic', subcategory: 'style' },
-  { id: 'b33', label: 'Vaporwave', emoji: '🌴', category: 'basic', subcategory: 'style' },
-  { id: 'b34', label: 'Fairy-Tale', emoji: '🏰', category: 'basic', subcategory: 'style' },
-];
-
 // ============================================================================
-// Tier 2: Persona Tags - 人设层 (30)
-// 通过对话展现的性格特征，用户选择来定义角色
+// Tier 1: Persona Tags - 角色人设（多选）
 // ============================================================================
 
 export const personaTags = [
-  // === Personality Core (15) ===
-  { id: 'p1', label: 'Sunshine', emoji: '☀️', category: 'persona', subcategory: 'personality', vibe: '小太阳，治愈系' },
-  { id: 'p2', label: 'Grumpy', emoji: '😤', category: 'persona', subcategory: 'personality', vibe: '傲娇/嘴硬心软' },
-  { id: 'p3', label: 'Chaotic-Good', emoji: '🃏', category: 'persona', subcategory: 'personality', vibe: '混乱善良，不按套路' },
-  { id: 'p4', label: 'Touch-Starved', emoji: '🫂', category: 'persona', subcategory: 'personality', vibe: '渴望被爱' },
-  { id: 'p5', label: 'Morally-Grey', emoji: '⚖️', category: 'persona', subcategory: 'personality', vibe: '亦正亦邪' },
-  { id: 'p6', label: 'Obsessive', emoji: '🖤', category: 'persona', subcategory: 'personality', vibe: '占有欲强/偏执' },
-  { id: 'p7', label: 'Protective', emoji: '🛡️', category: 'persona', subcategory: 'personality', vibe: '保护欲爆棚' },
-  { id: 'p8', label: 'Flirty', emoji: '😏', category: 'persona', subcategory: 'personality', vibe: '撩人精' },
-  { id: 'p9', label: 'Stoic', emoji: '🗿', category: 'persona', subcategory: 'personality', vibe: '面瘫/高冷' },
-  { id: 'p10', label: 'Unhinged', emoji: '🔥', category: 'persona', subcategory: 'personality', vibe: '疯批美人' },
-  { id: 'p11', label: 'Devoted', emoji: '💎', category: 'persona', subcategory: 'personality', vibe: '专一忠诚' },
-  { id: 'p12', label: 'Sarcastic', emoji: '🙄', category: 'persona', subcategory: 'personality', vibe: '毒舌' },
-  { id: 'p13', label: 'Vulnerable', emoji: '💔', category: 'persona', subcategory: 'personality', vibe: '外强中干' },
-  { id: 'p14', label: 'Brooding', emoji: '🌑', category: 'persona', subcategory: 'personality', vibe: '阴郁深沉' },
-  { id: 'p15', label: 'Mischievous', emoji: '🎭', category: 'persona', subcategory: 'personality', vibe: '爱玩爱闹' },
+  // ========== 社会身份 / Social Identity (20) ==========
+  { id: 'p1', label: 'CEO', labelCN: 'CEO / 霸总', emoji: '💼', category: 'persona', dimension: 'identity' },
+  { id: 'p2', label: 'Doctor', labelCN: '医生', emoji: '🩺', category: 'persona', dimension: 'identity' },
+  { id: 'p3', label: 'Artist', labelCN: '艺术家', emoji: '🎨', category: 'persona', dimension: 'identity' },
+  { id: 'p4', label: 'Student', labelCN: '学生', emoji: '📚', category: 'persona', dimension: 'identity' },
+  { id: 'p5', label: 'Idol', labelCN: '偶像', emoji: '🎤', category: 'persona', dimension: 'identity' },
+  { id: 'p6', label: 'Mafia-Boss', labelCN: '黑帮老大', emoji: '🎰', category: 'persona', dimension: 'identity' },
+  { id: 'p7', label: 'Professor', labelCN: '教授', emoji: '🎓', category: 'persona', dimension: 'identity' },
+  { id: 'p8', label: 'Athlete', labelCN: '运动员', emoji: '🏆', category: 'persona', dimension: 'identity' },
+  { id: 'p9', label: 'Chef', labelCN: '厨师', emoji: '👨‍🍳', category: 'persona', dimension: 'identity' },
+  { id: 'p10', label: 'Musician', labelCN: '音乐人', emoji: '🎸', category: 'persona', dimension: 'identity' },
+  { id: 'p11', label: 'Writer', labelCN: '作家', emoji: '✍️', category: 'persona', dimension: 'identity' },
+  { id: 'p12', label: 'Model', labelCN: '模特', emoji: '📸', category: 'persona', dimension: 'identity' },
+  { id: 'p13', label: 'Hacker', labelCN: '黑客', emoji: '💻', category: 'persona', dimension: 'identity' },
+  { id: 'p14', label: 'Royalty', labelCN: '王室 / 皇族', emoji: '👑', category: 'persona', dimension: 'identity' },
+  { id: 'p15', label: 'Soldier', labelCN: '军人', emoji: '🎖️', category: 'persona', dimension: 'identity' },
+  { id: 'p16', label: 'Detective', labelCN: '侦探', emoji: '🔍', category: 'persona', dimension: 'identity' },
+  { id: 'p17', label: 'Barista', labelCN: '咖啡师', emoji: '☕', category: 'persona', dimension: 'identity' },
+  { id: 'p18', label: 'Pilot', labelCN: '飞行员', emoji: '✈️', category: 'persona', dimension: 'identity' },
+  { id: 'p19', label: 'Dancer', labelCN: '舞者', emoji: '💃', category: 'persona', dimension: 'identity' },
+  { id: 'p20', label: 'Streamer', labelCN: '主播', emoji: '🎮', category: 'persona', dimension: 'identity' },
 
-  // === Identity/Archetype (15) ===
-  { id: 'p16', label: 'CEO-Energy', emoji: '💼', category: 'persona', subcategory: 'archetype', vibe: '霸总气场' },
-  { id: 'p17', label: 'Little-Wolf', emoji: '🐺', category: 'persona', subcategory: 'archetype', vibe: '小狼狗' },
-  { id: 'p18', label: 'Golden-Retriever', emoji: '🐕', category: 'persona', subcategory: 'archetype', vibe: '大金毛，阳光忠诚' },
-  { id: 'p19', label: 'Black-Cat', emoji: '🐈‍⬛', category: 'persona', subcategory: 'archetype', vibe: '高冷猫系' },
-  { id: 'p20', label: 'Mafia-Boss', emoji: '🎰', category: 'persona', subcategory: 'archetype', vibe: '黑道大佬' },
-  { id: 'p21', label: 'Idol', emoji: '🎤', category: 'persona', subcategory: 'archetype', vibe: '爱豆/明星' },
-  { id: 'p22', label: 'Genius', emoji: '🧠', category: 'persona', subcategory: 'archetype', vibe: '天才设定' },
-  { id: 'p23', label: 'Rebel', emoji: '✊', category: 'persona', subcategory: 'archetype', vibe: '叛逆者' },
-  { id: 'p24', label: 'Healer', emoji: '💚', category: 'persona', subcategory: 'archetype', vibe: '治愈者' },
-  { id: 'p25', label: 'Trickster', emoji: '🦊', category: 'persona', subcategory: 'archetype', vibe: '狐狸精/骗子' },
-  { id: 'p26', label: 'Villain', emoji: '🦹', category: 'persona', subcategory: 'archetype', vibe: '反派美学' },
-  { id: 'p27', label: 'Knight', emoji: '⚔️', category: 'persona', subcategory: 'archetype', vibe: '忠诚骑士' },
-  { id: 'p28', label: 'Royal', emoji: '👸', category: 'persona', subcategory: 'archetype', vibe: '皇室贵族' },
-  { id: 'p29', label: 'Outcast', emoji: '🌙', category: 'persona', subcategory: 'archetype', vibe: '边缘人/孤狼' },
-  { id: 'p30', label: 'Prodigy', emoji: '⭐', category: 'persona', subcategory: 'archetype', vibe: '天选之子' },
+  // ========== 风格 / Style & Aesthetic (25) - 更有网感 ==========
+  { id: 'p21', label: 'Dark-Academia', labelCN: '暗黑学院风', emoji: '📖', category: 'persona', dimension: 'style' },
+  { id: 'p22', label: 'Streetwear', labelCN: '街头潮流', emoji: '🛹', category: 'persona', dimension: 'style' },
+  { id: 'p23', label: 'Cottagecore', labelCN: '田园风', emoji: '🌻', category: 'persona', dimension: 'style' },
+  { id: 'p24', label: 'Cyberpunk', labelCN: '赛博朋克', emoji: '🤖', category: 'persona', dimension: 'style' },
+  { id: 'p25', label: 'Y2K', labelCN: 'Y2K / 千禧风', emoji: '💿', category: 'persona', dimension: 'style' },
+  { id: 'p26', label: 'Gothic', labelCN: '哥特风', emoji: '🦇', category: 'persona', dimension: 'style' },
+  { id: 'p27', label: 'Old-Money', labelCN: '老钱风', emoji: '💎', category: 'persona', dimension: 'style' },
+  { id: 'p28', label: 'Kawaii', labelCN: '可爱风', emoji: '🎀', category: 'persona', dimension: 'style' },
+  { id: 'p29', label: 'Foxy', labelCN: '狐狸系 / 妖媚', emoji: '🦊', category: 'persona', dimension: 'style' },
+  { id: 'p30', label: 'Bad-Boy', labelCN: '坏男孩', emoji: '😎', category: 'persona', dimension: 'style' },
+  { id: 'p31', label: 'Soft-Boy', labelCN: '奶狗系', emoji: '🐶', category: 'persona', dimension: 'style' },
+  { id: 'p32', label: 'Cold-Beauty', labelCN: '高冷美人', emoji: '❄️', category: 'persona', dimension: 'style' },
+  { id: 'p33', label: 'Girl-Next-Door', labelCN: '邻家女孩', emoji: '🏠', category: 'persona', dimension: 'style' },
+  { id: 'p34', label: 'Mysterious', labelCN: '神秘感', emoji: '🌙', category: 'persona', dimension: 'style' },
+  { id: 'p35', label: 'Sunshine', labelCN: '阳光系', emoji: '☀️', category: 'persona', dimension: 'style' },
+  { id: 'p36', label: 'E-Girl', labelCN: 'E-Girl / 网感少女', emoji: '🖤', category: 'persona', dimension: 'style' },
+  { id: 'p37', label: 'E-Boy', labelCN: 'E-Boy / 网感少年', emoji: '⛓️', category: 'persona', dimension: 'style' },
+  { id: 'p38', label: 'Coquette', labelCN: '蝴蝶结公主', emoji: '🎀', category: 'persona', dimension: 'style' },
+  { id: 'p39', label: 'Clean-Girl', labelCN: '干净清爽', emoji: '✨', category: 'persona', dimension: 'style' },
+  { id: 'p40', label: 'Fairycore', labelCN: '仙女风', emoji: '🧚', category: 'persona', dimension: 'style' },
+  { id: 'p41', label: 'Grunge', labelCN: '颓废摇滚', emoji: '🎸', category: 'persona', dimension: 'style' },
+  { id: 'p42', label: 'Rockstar', labelCN: '摇滚明星', emoji: '🤘', category: 'persona', dimension: 'style' },
+  { id: 'p43', label: 'Anime', labelCN: '动漫风', emoji: '🎌', category: 'persona', dimension: 'style' },
+  { id: 'p44', label: 'Fantasy', labelCN: '奇幻风', emoji: '🏰', category: 'persona', dimension: 'style' },
+  { id: 'p45', label: 'Sporty', labelCN: '运动风', emoji: '⚽', category: 'persona', dimension: 'style' },
 
-  // === NEW: Extra Personas (3) ===
-  { id: 'p31', label: 'Tsundere', emoji: '💢', category: 'persona', subcategory: 'personality', vibe: '傲娇经典款' },
-  { id: 'p32', label: 'Yandere', emoji: '🔪', category: 'persona', subcategory: 'personality', vibe: '病娇/为爱痴狂' },
-  { id: 'p33', label: 'Himbo', emoji: '💪😊', category: 'persona', subcategory: 'archetype', vibe: '傻白甜肌肉男' },
+  // ========== Roleplay 人设 / Character Archetypes (20) ==========
+  { id: 'p46', label: 'Vampire', labelCN: '吸血鬼', emoji: '🧛', category: 'persona', dimension: 'roleplay' },
+  { id: 'p47', label: 'Werewolf', labelCN: '狼人', emoji: '🐺', category: 'persona', dimension: 'roleplay' },
+  { id: 'p48', label: 'Demon', labelCN: '恶魔', emoji: '😈', category: 'persona', dimension: 'roleplay' },
+  { id: 'p49', label: 'Angel', labelCN: '天使', emoji: '👼', category: 'persona', dimension: 'roleplay' },
+  { id: 'p50', label: 'Yandere', labelCN: '病娇', emoji: '🔪', category: 'persona', dimension: 'roleplay' },
+  { id: 'p51', label: 'Tsundere', labelCN: '傲娇', emoji: '💢', category: 'persona', dimension: 'roleplay' },
+  { id: 'p52', label: 'Kuudere', labelCN: '酷娇 / 面瘫', emoji: '🧊', category: 'persona', dimension: 'roleplay' },
+  { id: 'p53', label: 'Dandere', labelCN: '呆萌', emoji: '😶', category: 'persona', dimension: 'roleplay' },
+  { id: 'p54', label: 'Villain', labelCN: '反派', emoji: '🦹', category: 'persona', dimension: 'roleplay' },
+  { id: 'p55', label: 'Anti-Hero', labelCN: '反英雄', emoji: '🎭', category: 'persona', dimension: 'roleplay' },
+  { id: 'p56', label: 'Prince', labelCN: '王子', emoji: '🤴', category: 'persona', dimension: 'roleplay' },
+  { id: 'p57', label: 'Knight', labelCN: '骑士', emoji: '⚔️', category: 'persona', dimension: 'roleplay' },
+  { id: 'p58', label: 'Assassin', labelCN: '刺客', emoji: '🗡️', category: 'persona', dimension: 'roleplay' },
+  { id: 'p59', label: 'Mage', labelCN: '法师', emoji: '🧙', category: 'persona', dimension: 'roleplay' },
+  { id: 'p60', label: 'Elf', labelCN: '精灵', emoji: '🧝', category: 'persona', dimension: 'roleplay' },
+  { id: 'p61', label: 'Ghost', labelCN: '幽灵', emoji: '👻', category: 'persona', dimension: 'roleplay' },
+  { id: 'p62', label: 'Android', labelCN: '仿生人', emoji: '🤖', category: 'persona', dimension: 'roleplay' },
+  { id: 'p63', label: 'Pirate', labelCN: '海盗', emoji: '🏴‍☠️', category: 'persona', dimension: 'roleplay' },
+  { id: 'p64', label: 'Witch', labelCN: '女巫', emoji: '🧙‍♀️', category: 'persona', dimension: 'roleplay' },
+  { id: 'p65', label: 'Fallen-Angel', labelCN: '堕天使', emoji: '🖤', category: 'persona', dimension: 'roleplay' },
+
+  // ========== 内容类型 / Content Type (15) ==========
+  { id: 'p66', label: 'Career-Coach', labelCN: '职场教练', emoji: '🧭', category: 'persona', dimension: 'content' },
+  { id: 'p67', label: 'Language-Tutor', labelCN: '语言陪练', emoji: '🗣️', category: 'persona', dimension: 'content' },
+  { id: 'p68', label: 'Wellness-Coach', labelCN: '身心疗愈', emoji: '🧘', category: 'persona', dimension: 'content' },
+  { id: 'p69', label: 'Fashion-Stylist', labelCN: '穿搭顾问', emoji: '👗', category: 'persona', dimension: 'content' },
+  { id: 'p70', label: 'Study-Buddy', labelCN: '学习搭子', emoji: '📝', category: 'persona', dimension: 'content' },
+  { id: 'p71', label: 'Gym-Buddy', labelCN: '健身搭子', emoji: '🏋️', category: 'persona', dimension: 'content' },
+  { id: 'p72', label: 'Travel-Buddy', labelCN: '旅行搭子', emoji: '🧳', category: 'persona', dimension: 'content' },
+  { id: 'p73', label: 'Daily-Companion', labelCN: '日常陪伴', emoji: '☀️', category: 'persona', dimension: 'content' },
+  { id: 'p74', label: 'Situationship', labelCN: '暧昧对象', emoji: '💭', category: 'persona', dimension: 'content' },
+  { id: 'p75', label: 'Healing-Vibes', labelCN: '治愈系', emoji: '🌧️', category: 'persona', dimension: 'content' },
+  { id: 'p76', label: 'Late-Night-Talk', labelCN: '深夜聊天', emoji: '🌙', category: 'persona', dimension: 'content' },
+  { id: 'p77', label: 'Anime-IP', labelCN: '动漫IP', emoji: '🎌', category: 'persona', dimension: 'content' },
+  { id: 'p78', label: 'Gaming-IP', labelCN: '游戏世界', emoji: '🕹️', category: 'persona', dimension: 'content' },
+  { id: 'p79', label: 'Movie-TV', labelCN: '影视剧集', emoji: '🍿', category: 'persona', dimension: 'content' },
+  { id: 'p80', label: 'ASMR', labelCN: 'ASMR / 助眠', emoji: '🎧', category: 'persona', dimension: 'content' },
+
+  // ========== 互动氛围 / Vibe & Dynamics (12) - 网感标签 ==========
+  { id: 'p81', label: 'Dom', labelCN: '主导型 / S', emoji: '👑', category: 'persona', dimension: 'vibe' },
+  { id: 'p82', label: 'Sub', labelCN: '服从型 / M', emoji: '🔗', category: 'persona', dimension: 'vibe' },
+  { id: 'p83', label: 'Switch', labelCN: '可攻可受', emoji: '🔄', category: 'persona', dimension: 'vibe' },
+  { id: 'p84', label: 'Brat', labelCN: '小恶魔 / 欠管教', emoji: '😼', category: 'persona', dimension: 'vibe' },
+  { id: 'p85', label: 'Gentle-Dom', labelCN: '温柔控制', emoji: '🌹', category: 'persona', dimension: 'vibe' },
+  { id: 'p86', label: 'Possessive', labelCN: '占有欲强', emoji: '🔒', category: 'persona', dimension: 'vibe' },
+  { id: 'p87', label: 'Flirty', labelCN: '撩人精', emoji: '😏', category: 'persona', dimension: 'vibe' },
+  { id: 'p88', label: 'Jealous', labelCN: '醋王', emoji: '💚', category: 'persona', dimension: 'vibe' },
+  { id: 'p89', label: 'Clingy', labelCN: '黏人精', emoji: '🐨', category: 'persona', dimension: 'vibe' },
+  { id: 'p90', label: 'Aloof', labelCN: '高冷疏离', emoji: '🧊', category: 'persona', dimension: 'vibe' },
+  { id: 'p91', label: 'Teasing', labelCN: '爱捉弄人', emoji: '😜', category: 'persona', dimension: 'vibe' },
+  { id: 'p92', label: 'Protective', labelCN: '保护欲强', emoji: '🛡️', category: 'persona', dimension: 'vibe' },
+
+  // ========== 星座 / Zodiac (12) ==========
+  { id: 'z1', label: 'Aries', labelCN: '白羊座', emoji: '♈', category: 'persona', dimension: 'zodiac' },
+  { id: 'z2', label: 'Taurus', labelCN: '金牛座', emoji: '♉', category: 'persona', dimension: 'zodiac' },
+  { id: 'z3', label: 'Gemini', labelCN: '双子座', emoji: '♊', category: 'persona', dimension: 'zodiac' },
+  { id: 'z4', label: 'Cancer', labelCN: '巨蟹座', emoji: '♋', category: 'persona', dimension: 'zodiac' },
+  { id: 'z5', label: 'Leo', labelCN: '狮子座', emoji: '♌', category: 'persona', dimension: 'zodiac' },
+  { id: 'z6', label: 'Virgo', labelCN: '处女座', emoji: '♍', category: 'persona', dimension: 'zodiac' },
+  { id: 'z7', label: 'Libra', labelCN: '天秤座', emoji: '♎', category: 'persona', dimension: 'zodiac' },
+  { id: 'z8', label: 'Scorpio', labelCN: '天蝎座', emoji: '♏', category: 'persona', dimension: 'zodiac' },
+  { id: 'z9', label: 'Sagittarius', labelCN: '射手座', emoji: '♐', category: 'persona', dimension: 'zodiac' },
+  { id: 'z10', label: 'Capricorn', labelCN: '摩羯座', emoji: '♑', category: 'persona', dimension: 'zodiac' },
+  { id: 'z11', label: 'Aquarius', labelCN: '水瓶座', emoji: '♒', category: 'persona', dimension: 'zodiac' },
+  { id: 'z12', label: 'Pisces', labelCN: '双鱼座', emoji: '♓', category: 'persona', dimension: 'zodiac' },
 ];
 
 // ============================================================================
-// Tier 3: Relationship Tags - 社交关系层 (30)
-// 定义角色与用户的互动方式
+// 角色性别 / Character Gender（单选）
+// ============================================================================
+export const genderTags = [
+  { id: 'g1', label: 'Male', labelCN: '男性', emoji: '♂️', category: 'gender' },
+  { id: 'g2', label: 'Female', labelCN: '女性', emoji: '♀️', category: 'gender' },
+  { id: 'g3', label: 'Non-Binary', labelCN: '非二元', emoji: '⚧️', category: 'gender' },
+  { id: 'g4', label: 'Creature', labelCN: '非人类', emoji: '👾', category: 'gender', description: '机器人、怪物、精灵等' },
+];
+
+// ============================================================================
+// 面向用户 / Targeting（单选）- 这个角色是为谁设计的
+// 用普通用户能懂的语言包装，避免 M4F 等术语
+// ============================================================================
+export const targetingTags = [
+  { id: 't1', label: 'For-Her', labelCN: '他是你的男神', emoji: '💙', category: 'targeting', targetCode: 'M4F', description: '男性角色，专为女生设计' },
+  { id: 't2', label: 'For-Him', labelCN: '她是你的女神', emoji: '💖', category: 'targeting', targetCode: 'F4M', description: '女性角色，专为男生设计' },
+  { id: 't3', label: 'BL', labelCN: '耽美 / 男男', emoji: '💜', category: 'targeting', targetCode: 'M4M', description: '男性角色，面向喜欢 BL 的用户' },
+  { id: 't4', label: 'GL', labelCN: '百合 / 女女', emoji: '🧡', category: 'targeting', targetCode: 'F4F', description: '女性角色，面向喜欢 GL 的用户' },
+  { id: 't5', label: 'Everyone', labelCN: '不限 / TA', emoji: '🌈', category: 'targeting', targetCode: 'AnyPOV', description: '性别自适应，谁都可以' },
+];
+
+// ============================================================================
+// Tier 2: Relationship Tags - 关系定位（单选）- 更有网感
 // ============================================================================
 
 export const relationshipTags = [
-  // === Relationship Type (10) ===
-  { id: 'r1', label: 'Soulmate', emoji: '💞', category: 'relationship', subcategory: 'type' },
-  { id: 'r2', label: 'Rival', emoji: '⚔️', category: 'relationship', subcategory: 'type' },
-  { id: 'r3', label: 'Frenemy', emoji: '😈', category: 'relationship', subcategory: 'type' },
-  { id: 'r4', label: 'Ex', emoji: '💔', category: 'relationship', subcategory: 'type' },
-  { id: 'r5', label: 'Secret-Crush', emoji: '🤫', category: 'relationship', subcategory: 'type' },
-  { id: 'r6', label: 'Forbidden', emoji: '🚫', category: 'relationship', subcategory: 'type' },
-  { id: 'r7', label: 'Childhood-Friend', emoji: '🧒', category: 'relationship', subcategory: 'type' },
-  { id: 'r8', label: 'Mentor', emoji: '🎓', category: 'relationship', subcategory: 'type' },
-  { id: 'r9', label: 'Situationship', emoji: '🤷', category: 'relationship', subcategory: 'type' },
-  { id: 'r10', label: 'Nemesis', emoji: '🔥', category: 'relationship', subcategory: 'type' },
-
-  // === Tropes (10) ===
-  { id: 'r11', label: 'Enemies-to-Lovers', emoji: '⚔️❤️', category: 'relationship', subcategory: 'trope', vibe: '相爱相杀' },
-  { id: 'r12', label: 'Fake-Dating', emoji: '💍', category: 'relationship', subcategory: 'trope', vibe: '假戏真做' },
-  { id: 'r13', label: 'Slow-Burn', emoji: '🕯️', category: 'relationship', subcategory: 'trope', vibe: '细水长流' },
-  { id: 'r14', label: 'Love-Triangle', emoji: '🔺', category: 'relationship', subcategory: 'trope', vibe: '三角恋' },
-  { id: 'r15', label: 'Second-Chance', emoji: '🔄', category: 'relationship', subcategory: 'trope', vibe: '破镜重圆' },
-  { id: 'r16', label: 'Forced-Proximity', emoji: '🏠', category: 'relationship', subcategory: 'trope', vibe: '强制同居' },
-  { id: 'r17', label: 'Grumpy-Sunshine', emoji: '🌤️', category: 'relationship', subcategory: 'trope', vibe: '冰火组合' },
-  { id: 'r18', label: 'One-Bed', emoji: '🛏️', category: 'relationship', subcategory: 'trope', vibe: '只有一张床' },
-  { id: 'r19', label: 'He-Falls-First', emoji: '📉', category: 'relationship', subcategory: 'trope', vibe: '先动心的是他' },
-  { id: 'r20', label: 'Obsessive-Love', emoji: '🖤', category: 'relationship', subcategory: 'trope', vibe: '病娇式爱情' },
-
-  // === Vibe/Energy (10) - 关系中的能量/氛围 ===
-  { id: 'r21', label: 'Simp-for-You', emoji: '🥺', category: 'relationship', subcategory: 'vibe', vibe: 'TA 对你无条件宠溺' },
-  { id: 'r22', label: 'Hard-to-Get', emoji: '🙄', category: 'relationship', subcategory: 'vibe', vibe: '欲擒故纵' },
-  { id: 'r23', label: 'Whipped', emoji: '🐶', category: 'relationship', subcategory: 'vibe', vibe: '完全被拿捏' },
-  { id: 'r24', label: 'Toxic', emoji: '☠️', category: 'relationship', subcategory: 'vibe', vibe: '有毒但上头' },
-  { id: 'r25', label: 'Wholesome', emoji: '🌈', category: 'relationship', subcategory: 'vibe', vibe: '纯爱/治愈' },
-  { id: 'r26', label: 'Chaotic', emoji: '🔥', category: 'relationship', subcategory: 'vibe', vibe: '疯狂混乱' },
-  { id: 'r27', label: 'Telepathic', emoji: '🧠', category: 'relationship', subcategory: 'vibe', vibe: '心有灵犀' },
-  { id: 'r28', label: 'Codependent', emoji: '🔗', category: 'relationship', subcategory: 'vibe', vibe: '相互依赖' },
-  { id: 'r29', label: 'Push-Pull', emoji: '🎢', category: 'relationship', subcategory: 'vibe', vibe: '拉扯/若即若离' },
-  { id: 'r30', label: 'Ride-or-Die', emoji: '💀', category: 'relationship', subcategory: 'vibe', vibe: '生死相依' },
-
-  // === NEW: Extra Tropes (3) ===
-  { id: 'r31', label: 'Friends-to-Lovers', emoji: '👫❤️', category: 'relationship', subcategory: 'trope', vibe: '友情升华' },
-  { id: 'r32', label: 'Stalker-Vibes', emoji: '👁️‍🗨️', category: 'relationship', subcategory: 'vibe', vibe: 'TA 一直在看着你' },
-  { id: 'r33', label: 'Found-Family', emoji: '🏠❤️', category: 'relationship', subcategory: 'type', vibe: '非血缘的家人' },
+  // 经典关系
+  { id: 'r1', label: 'Soulmate', labelCN: '灵魂伴侣', emoji: '💞', category: 'relationship', description: 'Your perfect match, deeply connected' },
+  { id: 'r2', label: 'Protector', labelCN: '守护者', emoji: '🛡️', category: 'relationship', description: 'Always watching over you' },
+  { id: 'r3', label: 'Rival', labelCN: '对手', emoji: '⚔️', category: 'relationship', description: 'Competitive tension, pushing each other' },
+  { id: 'r4', label: 'Secret-Admirer', labelCN: '暗恋者', emoji: '🤫', category: 'relationship', description: 'Hidden feelings, stolen glances' },
+  { id: 'r5', label: 'Childhood-Friend', labelCN: '青梅竹马', emoji: '🧒', category: 'relationship', description: 'Known each other forever' },
+  { id: 'r6', label: 'Ex', labelCN: '前任', emoji: '💔', category: 'relationship', description: 'History between you two' },
+  { id: 'r7', label: 'Fake-Dating', labelCN: '假装恋爱', emoji: '💍', category: 'relationship', description: 'Pretending... or is it real?' },
+  { id: 'r8', label: 'Enemies-to-Lovers', labelCN: '欢喜冤家', emoji: '🔥', category: 'relationship', description: 'From hate to love' },
+  { id: 'r9', label: 'Roommate', labelCN: '室友', emoji: '🏠', category: 'relationship', description: 'Sharing space, building connection' },
+  { id: 'r10', label: 'Stranger', labelCN: '陌生人', emoji: '👀', category: 'relationship', description: 'Just met, instant chemistry' },
+  { id: 'r11', label: 'Forbidden', labelCN: '禁忌之恋', emoji: '🚫', category: 'relationship', description: 'Should not, but cannot resist' },
+  // 网感关系
+  { id: 'r12', label: 'Daddy', labelCN: 'Daddy / 霸道总裁', emoji: '🔥', category: 'relationship', description: 'Dominant, protective, takes charge' },
+  { id: 'r13', label: 'Mommy', labelCN: 'Mommy / 姐姐', emoji: '💋', category: 'relationship', description: 'Nurturing, caring, in control' },
+  { id: 'r14', label: 'Sugar-Daddy', labelCN: '金主爸爸', emoji: '💰', category: 'relationship', description: 'Spoils you with everything' },
+  { id: 'r15', label: 'Sugar-Baby', labelCN: '被宠的那个', emoji: '🍬', category: 'relationship', description: 'Pampered and adored' },
+  { id: 'r16', label: 'Step-Sibling', labelCN: '继兄妹', emoji: '👫', category: 'relationship', description: 'Complicated family dynamics' },
+  { id: 'r17', label: 'Toxic-Ex', labelCN: '有毒前任', emoji: '☠️', category: 'relationship', description: 'Bad for you, but addictive' },
+  { id: 'r18', label: 'Obsessed', labelCN: '疯狂迷恋', emoji: '💀', category: 'relationship', description: 'Cannot let you go' },
+  { id: 'r19', label: 'Pet', labelCN: '小宠物', emoji: '🐾', category: 'relationship', description: 'Adorable and devoted' },
+  { id: 'r20', label: 'Master', labelCN: '主人', emoji: '👑', category: 'relationship', description: 'In complete control' },
 ];
 
 // ============================================================================
 // Helper Functions
 // ============================================================================
 
-// 获取所有标签（用于 AI 推荐匹配）
-export const getAllTags = () => [...basicTags, ...personaTags, ...relationshipTags];
+// 获取所有标签（包括 gender 和 targeting）
+export const getAllTags = () => [...personaTags, ...relationshipTags, ...genderTags, ...targetingTags];
 
-// 获取所有标签的 label 列表（用于 prompt）
+// 获取所有标签的 label 列表
 export const getAllTagLabels = () => getAllTags().map(t => t.label);
 
 // 根据 ID 查找标签
 export const getTagById = (id) => getAllTags().find(t => t.id === id);
 
-// 根据 label 查找标签（不区分大小写）
-export const getTagByLabel = (label) => 
-  getAllTags().find(t => t.label.toLowerCase() === label.toLowerCase());
+// 根据 label 查找标签
+export const getTagByLabel = (label) => {
+  if (!label) return null;
+  
+  const cleanLabel = label
+    .replace(/[\u{1F300}-\u{1F9FF}]/gu, '')
+    .replace(/[^\w\s-]/g, '')
+    .trim()
+    .toLowerCase();
+  
+  return getAllTags().find(t => {
+    const cleanTagLabel = t.label.toLowerCase().replace(/-/g, '');
+    const cleanInputLabel = cleanLabel.replace(/-/g, '').replace(/\s+/g, '');
+    
+    return t.label.toLowerCase() === cleanLabel || 
+           cleanTagLabel === cleanInputLabel ||
+           t.label.toLowerCase().includes(cleanLabel) ||
+           cleanLabel.includes(t.label.toLowerCase());
+  });
+};
 
-// 获取分类后的标签（用于 UI 展示）
-export const getTagsByCategory = () => ({
-  basic: {
-    title: 'Visual Vibe',
-    subtitle: 'AI 从图片分析',
-    tags: basicTags,
-    subcategories: {
-      appearance: { title: 'Appearance', tags: basicTags.filter(t => t.subcategory === 'appearance') },
-      style: { title: 'Style', tags: basicTags.filter(t => t.subcategory === 'style') },
-      mood: { title: 'Mood', tags: basicTags.filter(t => t.subcategory === 'mood') },
-    }
-  },
-  persona: {
-    title: 'Persona',
-    subtitle: '定义 TA 的性格',
-    tags: personaTags,
-    subcategories: {
-      personality: { title: 'Personality', tags: personaTags.filter(t => t.subcategory === 'personality') },
-      archetype: { title: 'Archetype', tags: personaTags.filter(t => t.subcategory === 'archetype') },
-    }
-  },
-  relationship:   {
-    title: 'Relationship',
-    subtitle: '你在关系中的角色',
-    tags: relationshipTags,
-    subcategories: {
-      type: { title: 'Type', tags: relationshipTags.filter(t => t.subcategory === 'type') },
-      trope: { title: 'Tropes', tags: relationshipTags.filter(t => t.subcategory === 'trope') },
-      vibe: { title: 'Vibe', tags: relationshipTags.filter(t => t.subcategory === 'vibe') },
-    }
-  },
-});
+// 获取分类后的标签（自动按 dimension 分组）
+export const getTagsByCategory = () => {
+  const dimensions = personaTags.reduce((acc, t) => {
+    const key = t.dimension || 'other';
+    if (!acc[key]) acc[key] = [];
+    acc[key].push(t);
+    return acc;
+  }, {});
+
+  return {
+    persona: {
+      title: 'Persona',
+      subtitle: 'Define their personality',
+      selectionMode: 'multi',
+      tags: personaTags,
+      dimensions,
+    },
+    relationship: {
+      title: 'Relationship',
+      subtitle: 'Your connection with character',
+      selectionMode: 'single',
+      shuffleEnabled: true,
+      displayCount: 5,
+      tags: relationshipTags,
+    },
+    gender: {
+      title: 'Gender',
+      titleCN: '角色性别',
+      subtitle: 'Character gender',
+      selectionMode: 'single',
+      tags: genderTags,
+    },
+    targeting: {
+      title: 'For You',
+      titleCN: 'TA 是谁的？',
+      subtitle: 'This character is made for...',
+      selectionMode: 'single',
+      tags: targetingTags,
+    },
+  };
+};
+
+// 仅获取 Persona 标签
+export const getPersonaTags = () => personaTags;
+
+// 仅获取 Relationship 标签
+export const getRelationshipTags = () => relationshipTags;
+
+// 获取 Gender 标签
+export const getGenderTags = () => genderTags;
+
+// 获取 Targeting 标签
+export const getTargetingTags = () => targetingTags;
 
 export default {
-  basicTags,
   personaTags,
   relationshipTags,
+  genderTags,
+  targetingTags,
   getAllTags,
   getAllTagLabels,
   getTagById,
   getTagByLabel,
   getTagsByCategory,
+  getPersonaTags,
+  getRelationshipTags,
+  getGenderTags,
+  getTargetingTags,
 };

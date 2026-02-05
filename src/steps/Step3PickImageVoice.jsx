@@ -4,11 +4,10 @@ import StepLayout from '../components/StepLayout';
 import { imageService } from '../services/imageService';
 import { aiService } from '../services/aiService';
 import { callElevenLabsTTS } from '../config/api';
-import { getRandomWaitingPhrase, getRandomCompletionPhrase } from '../data/waitingPhrases';
 
 // 第三步：选择风格图和音色
 const Step3PickImageVoice = () => {
-  const { formData, updateFormData, nextStep, voiceLibrary, voiceLibraryLoading } = useAppContext();
+  const { formData, updateFormData, nextStep, prevStep, voiceLibrary, voiceLibraryLoading } = useAppContext();
   const [view, setView] = useState('image'); // 'image' 或 'voice'
   const [selectedImageIndex, setSelectedImageIndex] = useState(formData.selectedStyleIndex ?? null);
   // 优先使用用户选择的音色，其次使用 AI 推荐的音色
@@ -23,140 +22,40 @@ const Step3PickImageVoice = () => {
   // 音频播放状态
   const [playingVoiceId, setPlayingVoiceId] = useState(null);
   const [isAudioLoading, setIsAudioLoading] = useState(false);
-  const [ttsPhrase, setTtsPhrase] = useState(''); // 当前正在说的话
-  const [isTtsPlaying, setIsTtsPlaying] = useState(false); // TTS 是否正在播放
   const audioRef = useRef(null);
-  const ttsAudioRef = useRef(null); // TTS 音频引用
-  const hasAutoPlayed = useRef(false); // 是否已自动播放过
   const hasStartedGeneration = useRef(false); // 防止重复生成（React StrictMode）
+  const voiceFileInputRef = useRef(null); // 音色文件上传 input
+  
+  // 克隆音色状态
+  const [isUploadingVoice, setIsUploadingVoice] = useState(false);
+  const [clonedVoiceUrl, setClonedVoiceUrl] = useState(formData.clonedVoiceUrl || null);
+  const [clonedVoiceName, setClonedVoiceName] = useState(formData.clonedVoiceName || null);
   
   // 音色推荐状态 - 从 Step 2 的 formData 获取（不再在此处调用 AI）
   const aiRecommendedVoice = formData.aiRecommendedVoice || null;
   const aiVoiceReasoning = formData.aiVoiceReasoning || '';
 
-  // 当 AI 推荐的音色更新时，自动选中
+  // 当 AI 推荐的音色更新时，自动选中并播放预览
   useEffect(() => {
     if (aiRecommendedVoice && !selectedVoice) {
       setSelectedVoice(aiRecommendedVoice);
       updateFormData('selectedVoice', aiRecommendedVoice);
-    }
-  }, [aiRecommendedVoice]);
-
-  // 进入 Step3 时立即播放等待语（在图片开始加载前）
-  useEffect(() => {
-    // 只播放一次，且需要有推荐的音色
-    if (aiRecommendedVoice && !hasAutoPlayed.current) {
-      console.log('🔊 立即播放等待语，使用音色 ID:', aiRecommendedVoice);
-      hasAutoPlayed.current = true;
       
-      // 立即播放，不等待 voiceLibrary
-      playTTSGreeting(aiRecommendedVoice);
-    }
-  }, [aiRecommendedVoice]); // 只依赖 aiRecommendedVoice，不等待 voiceLibrary
-
-  // 使用 TTS 播放等待语
-  const playTTSGreeting = async (voiceId) => {
-    const phrase = getRandomWaitingPhrase();
-    setTtsPhrase(phrase);
-    setIsTtsPlaying(true);
-    
-    console.log(`🎤 TTS 播放等待语: "${phrase}"`);
-    
-    try {
-      const result = await callElevenLabsTTS(voiceId, phrase);
-      
-      if (result.success && result.audioUrl) {
-        // 停止之前的音频
-        if (ttsAudioRef.current) {
-          ttsAudioRef.current.pause();
-        }
-        
-        const audio = new Audio(result.audioUrl);
-        ttsAudioRef.current = audio;
-        
-        audio.onended = () => {
-          // 延迟 1.5 秒后再清除 TTS 状态
+      // 自动播放 AI 推荐音色的预览（如果音色库已加载）
+      if (voiceLibrary && voiceLibrary.length > 0) {
+        const recommendedVoice = voiceLibrary.find(v => v.id === aiRecommendedVoice);
+        if (recommendedVoice) {
+          console.log('🎙️ 自动播放 AI 推荐音色:', recommendedVoice.name);
+          // 延迟一点播放，让用户有心理准备
           setTimeout(() => {
-            setIsTtsPlaying(false);
-            setTtsPhrase('');
-            // 释放 Blob URL
-            URL.revokeObjectURL(result.audioUrl);
-          }, 1500);
-        };
-        
-        audio.onerror = (err) => {
-          console.error('❌ TTS 音频播放失败:', err);
-          setIsTtsPlaying(false);
-          setTtsPhrase('');
-        };
-        
-        await audio.play();
-        console.log('✅ TTS 音频开始播放');
-      } else {
-        console.warn('⚠️ TTS 生成失败，回退到预览音频');
-        // 回退：播放预览音频
-        const voice = voiceLibrary.find(v => v.id === voiceId);
-        if (voice?.previewUrl) {
-          playVoicePreview(voice);
+            playVoicePreview(recommendedVoice);
+          }, 500);
         }
-        setIsTtsPlaying(false);
-        setTtsPhrase('');
       }
-    } catch (error) {
-      console.error('❌ TTS 调用失败:', error);
-      setIsTtsPlaying(false);
-      setTtsPhrase('');
     }
-  };
+  }, [aiRecommendedVoice, voiceLibrary]);
 
-  // 播放完成语（图片生成完成后）
-  const playTTSCompletion = async (voiceId) => {
-    const phrase = getRandomCompletionPhrase();
-    setTtsPhrase(phrase);
-    setIsTtsPlaying(true);
-    
-    console.log(`🎉 TTS 播放完成语: "${phrase}"`);
-    
-    try {
-      const result = await callElevenLabsTTS(voiceId, phrase);
-      
-      if (result.success && result.audioUrl) {
-        // 停止之前的音频
-        if (ttsAudioRef.current) {
-          ttsAudioRef.current.pause();
-        }
-        
-        const audio = new Audio(result.audioUrl);
-        ttsAudioRef.current = audio;
-        
-        audio.onended = () => {
-          // 延迟 1.5 秒后再清除 TTS 状态
-          setTimeout(() => {
-            setIsTtsPlaying(false);
-            setTtsPhrase('');
-            URL.revokeObjectURL(result.audioUrl);
-          }, 1500);
-        };
-        
-        audio.onerror = (err) => {
-          console.error('❌ TTS 完成语播放失败:', err);
-          setIsTtsPlaying(false);
-          setTtsPhrase('');
-        };
-        
-        await audio.play();
-        console.log('✅ TTS 完成语开始播放');
-      } else {
-        console.warn('⚠️ TTS 完成语生成失败');
-        setIsTtsPlaying(false);
-        setTtsPhrase('');
-      }
-    } catch (error) {
-      console.error('❌ TTS 完成语调用失败:', error);
-      setIsTtsPlaying(false);
-      setTtsPhrase('');
-    }
-  };
+
 
   // 播放音色预览（可被自动播放调用）
   const playVoicePreview = (voice) => {
@@ -199,12 +98,32 @@ const Step3PickImageVoice = () => {
   };
 
   // 风格图数据（从生成结果获取，或显示占位图）
-  const styleImages = generatedImages.length > 0 ? generatedImages : [
-    { id: 1, url: null, type: 'placeholder' },
-    { id: 2, url: null, type: 'placeholder' },
-    { id: 3, url: null, type: 'placeholder' },
-    { id: 4, url: null, type: 'placeholder' },
-  ];
+  // 第一张始终是原图，后 3 张是生成的风格图
+  // 支持逐步生成：每生成一张图就更新 UI
+  const styleImages = (() => {
+    // 构建 4 个位置的数组
+    const result = [];
+    
+    // 位置 0：原图（始终显示）
+    if (generatedImages[0] && generatedImages[0].url) {
+      result.push(generatedImages[0]);
+    } else if (formData.uploadedImage) {
+      result.push({ id: 0, url: formData.uploadedImage, type: 'original', label: 'Original' });
+    } else {
+      result.push({ id: 0, url: null, type: 'placeholder' });
+    }
+    
+    // 位置 1-3：风格图（逐步显示，未生成的显示占位符）
+    for (let i = 1; i <= 3; i++) {
+      if (generatedImages[i] && generatedImages[i].url) {
+        result.push(generatedImages[i]);
+      } else {
+        result.push({ id: i, url: null, type: 'placeholder', label: `Style ${i}` });
+      }
+    }
+    
+    return result;
+  })();
 
   // 使用 Context 中缓存的 ElevenLabs 音色库
   const voices = voiceLibrary;
@@ -238,19 +157,34 @@ const Step3PickImageVoice = () => {
         audioRef.current.pause();
         audioRef.current = null;
       }
-      if (ttsAudioRef.current) {
-        ttsAudioRef.current.pause();
-        ttsAudioRef.current = null;
-      }
     };
   }, []);
 
   // 播放/暂停音色预览（用户点击按钮）
-  const handlePlayVoice = (e, voice) => {
+  const handlePlayVoice = async (e, voice) => {
     e.stopPropagation(); // 阻止事件冒泡，避免触发选择
     
+    // 如果没有 previewUrl，使用 TTS 生成预览
     if (!voice.previewUrl) {
-      console.warn('⚠️ 该音色没有预览音频:', voice.name);
+      console.log('🎤 没有预览URL，使用TTS生成预览:', voice.name);
+      setIsAudioLoading(true);
+      setPlayingVoiceId(voice.id);
+      
+      try {
+        const ttsResult = await callElevenLabsTTS(voice.id, `Hi, I'm ${voice.name}. Nice to meet you!`);
+        if (ttsResult.success && ttsResult.audioUrl) {
+          const audio = new Audio(ttsResult.audioUrl);
+          audioRef.current = audio;
+          audio.onended = () => {
+            setPlayingVoiceId(null);
+          };
+          audio.play();
+        }
+      } catch (error) {
+        console.error('TTS预览失败:', error);
+      } finally {
+        setIsAudioLoading(false);
+      }
       return;
     }
 
@@ -267,6 +201,29 @@ const Step3PickImageVoice = () => {
     playVoicePreview(voice);
   };
 
+  // 重新生成风格图片（用于 Regenerate 按钮）
+  const handleRegenerate = async () => {
+    console.log('🔄 用户请求重新生成图片...');
+    console.log('🗑️ 清除所有缓存数据，重新调用 AI...');
+    
+    // 清除当前生成的图片（保留原图）
+    setGeneratedImages(prev => {
+      const original = prev[0];
+      return original ? [original] : [];
+    });
+    
+    // 清除 formData 中的所有图片相关缓存
+    updateFormData('generatedImages', null);
+    updateFormData('stylePrompts', null);  // 清除缓存的 Prompts
+    updateFormData('generationTime', null);
+    
+    // 重置生成标记
+    hasStartedGeneration.current = false;
+    
+    // 开始重新生成
+    await generateStyleImages();
+  };
+
   // 生成风格图片的函数
   const generateStyleImages = async () => {
     setIsGenerating(true);
@@ -274,11 +231,26 @@ const Step3PickImageVoice = () => {
     setGenerationError(null);
 
     try {
-      console.log('🚀 开始图片生成流程...');
+      console.log('═══════════════════════════════════════════════════════════════');
+      console.log('🚀 开始图片生成流程');
+      console.log('═══════════════════════════════════════════════════════════════');
       
-      // 使用标签文本（不是 ID）来生成 prompts
+      // ===== 可复制的用户选择标签日志 =====
+      const personaTagIds = formData.selectedPersonaTags || [];
+      const relationshipTagId = formData.selectedRelationship;
       const tagLabels = formData.selectedTagLabels || [];
-      console.log('📝 用户选择的标签（文本）:', tagLabels);
+      
+      // 获取标签文本（用于显示）
+      const personaLabels = tagLabels.filter((_, i) => i < personaTagIds.length);
+      const relationshipLabel = relationshipTagId ? tagLabels[tagLabels.length - 1] : null;
+      
+      console.log('');
+      console.log('📋 ═══ 用户选择标签（可复制）═══');
+      console.log(`📌 SelectedPersonaTags: ${personaLabels.join(', ') || '(无)'}`);
+      console.log(`📌 SelectedRelationshipTag: ${relationshipLabel || '(无)'}`);
+      console.log(`📌 AllTags: ${tagLabels.join(', ') || '(无)'}`);
+      console.log('═══════════════════════════════════════');
+      console.log('');
       
       if (tagLabels.length === 0) {
         console.warn('⚠️ 没有选择标签！将使用默认标签');
@@ -295,15 +267,28 @@ const Step3PickImageVoice = () => {
         throw new Error('Prompt 生成失败: ' + promptResult.error);
       }
 
-      const prompts = promptResult.prompts;
-      console.log('📋 Gemini 生成的提示词:');
+      const prompts = promptResult.prompts || [];
+      console.log('📋 生成的提示词:');
       prompts.forEach((p, i) => console.log(`  ${i + 1}. ${p}`));
 
       // 2. 使用生成的 prompts 调用图生图 API
-      console.log('🎨 开始调用 7verse 图生图 API...');
+      console.log('🎨 开始调用 Flux 图生图 API...');
       const startTime = performance.now();
       
-      const result = await imageService.generateImage(formData, prompts);
+      // 定义回调函数：每生成一张图就更新 UI
+      const handleImageGenerated = (image, index) => {
+        console.log(`📷 图片 ${index + 1} 已生成:`, image.type || image.style);
+        
+        // 使用函数式更新，确保拿到最新的状态
+        setGeneratedImages(prev => {
+          const newImages = [...prev];
+          newImages[index] = image;
+          return newImages;
+        });
+      };
+      
+      // 传入完整的 promptResult 对象（包含 prompts, styleLabels 等）+ 回调函数
+      const result = await imageService.generateImage(formData, promptResult, handleImageGenerated);
 
       const endTime = performance.now();
       const duration = ((endTime - startTime) / 1000).toFixed(2) + 's';
@@ -328,6 +313,7 @@ const Step3PickImageVoice = () => {
           type: img.type || 'generated',
           prompt: img.prompt || prompts[index],
           duration: img.duration || 'N/A',
+          label: img.label || img.style,
         }));
         
         console.log('✅ 格式化后的图片:', formattedImages);
@@ -343,14 +329,6 @@ const Step3PickImageVoice = () => {
         updateFormData('modelUsed', result.modelId);
         
         setIsGenerating(false);
-        
-        // 播放完成语 - 用 AI 推荐的音色说一句庆祝的话
-        if (formData.aiRecommendedVoice) {
-          // 短暂延迟，让用户看到图片后再说话
-          setTimeout(() => {
-            playTTSCompletion(formData.aiRecommendedVoice);
-          }, 800);
-        }
       } else {
         throw new Error(result.error || '生成失败');
       }
@@ -376,6 +354,73 @@ const Step3PickImageVoice = () => {
     }
   };
 
+  // 处理音色文件上传（克隆声音）
+  const handleVoiceFileUpload = async (event) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+    
+    // 检查文件类型
+    if (!file.type.startsWith('audio/')) {
+      alert('请上传音频文件 (MP3, WAV, M4A 等)');
+      return;
+    }
+    
+    // 检查文件大小（最大 10MB）
+    if (file.size > 10 * 1024 * 1024) {
+      alert('音频文件过大，请上传小于 10MB 的文件');
+      return;
+    }
+    
+    setIsUploadingVoice(true);
+    console.log('🎤 开始上传克隆音色:', file.name);
+    
+    try {
+      // 上传到 7verse 存储获取 URL
+      const { uploadImageToImgbb } = await import('../config/api');
+      
+      // 将音频文件转为 base64
+      const reader = new FileReader();
+      reader.onload = async () => {
+        const base64Audio = reader.result;
+        
+        // 注意：7verse 存储 API 可能只支持图片
+        // 这里我们直接使用本地 URL 或者需要其他音频上传方案
+        // 暂时使用 URL.createObjectURL 创建本地 URL
+        const localUrl = URL.createObjectURL(file);
+        
+        console.log('✅ 音色文件已加载:', file.name);
+        
+        // 保存到状态
+        setClonedVoiceUrl(localUrl);
+        setClonedVoiceName(file.name.replace(/\.[^/.]+$/, '')); // 去掉扩展名
+        updateFormData('clonedVoiceUrl', localUrl);
+        updateFormData('clonedVoiceName', file.name.replace(/\.[^/.]+$/, ''));
+        
+        // 自动选择克隆的音色
+        setSelectedVoice('cloned');
+        updateFormData('selectedVoice', 'cloned');
+        updateFormData('selectedVoicePreviewUrl', localUrl);
+        
+        setIsUploadingVoice(false);
+        
+        // 提示成功
+        alert(`✅ 音色 "${file.name}" 已上传成功！`);
+      };
+      
+      reader.onerror = () => {
+        console.error('❌ 音频文件读取失败');
+        setIsUploadingVoice(false);
+        alert('音频文件读取失败，请重试');
+      };
+      
+      reader.readAsDataURL(file);
+    } catch (error) {
+      console.error('❌ 音色上传失败:', error);
+      setIsUploadingVoice(false);
+      alert('音色上传失败: ' + error.message);
+    }
+  };
+
   // 选择音色
   const handleVoiceSelect = (voiceId) => {
     setSelectedVoice(voiceId);
@@ -385,6 +430,11 @@ const Step3PickImageVoice = () => {
     const voiceInfo = voices.find(v => v.id === voiceId);
     if (voiceInfo) {
       updateFormData('selectedVoiceInfo', voiceInfo);
+      // 保存音色样本 URL（用于视频生成）
+      if (voiceInfo.previewUrl) {
+        updateFormData('selectedVoicePreviewUrl', voiceInfo.previewUrl);
+        console.log('🎤 已保存音色样本 URL:', voiceInfo.previewUrl);
+      }
     }
     
     // 选择后自动返回图片选择页面
@@ -410,20 +460,15 @@ const Step3PickImageVoice = () => {
     if (audioRef.current) {
       audioRef.current.pause();
     }
-    if (ttsAudioRef.current) {
-      ttsAudioRef.current.pause();
-    }
-    setIsTtsPlaying(false);
-    setTtsPhrase('');
     nextStep();
   };
 
   return (
     <StepLayout nextDisabled={isNextDisabled} onNext={handleNext}>
-      <div className="h-full flex flex-col px-6 pt-2">
+      <div className="h-full flex flex-col px-6 pt-2 min-h-0">
         {/* 顶部关闭按钮 */}
         <div className="flex justify-between items-center mb-4">
-          <button className="text-white text-2xl">←</button>
+          <button onClick={prevStep} className="text-white text-2xl hover:opacity-70 transition-opacity">←</button>
           <button 
             onClick={() => {
               if (confirm('确定要退出吗？当前进度将会丢失。')) {
@@ -436,65 +481,31 @@ const Step3PickImageVoice = () => {
           </button>
         </div>
 
-        <h1 className="text-3xl font-bold text-white italic text-center mb-5" style={{ fontStyle: 'italic' }}>
-          Pick a image and voice
+        <h1 className="text-3xl font-bold text-white italic text-center mb-3" style={{ fontStyle: 'italic' }}>
+          Pick an image and voice
         </h1>
 
-        {/* 加载状态提示 - Shimmer Effect */}
+        {/* Regenerate 按钮 */}
+        {!isGenerating && generatedImages.length > 1 && (
+          <div className="flex justify-center mb-4">
+            <button
+              onClick={handleRegenerate}
+              className="flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 rounded-full text-white text-sm font-medium transition-all shadow-lg hover:shadow-xl active:scale-95"
+            >
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+              </svg>
+              Regenerate Styles
+            </button>
+          </div>
+        )}
+
+        {/* 生成中状态提示 */}
         {isGenerating && (
-          <div className="fixed inset-0 bg-black bg-opacity-90 flex items-center justify-center z-50">
-            <div className="bg-gray-800 rounded-2xl p-8 max-w-md text-center mx-6">
-              {/* Wave Loader */}
-              <div className="wave-loader mb-6">
-                <span></span>
-                <span></span>
-                <span></span>
-                <span></span>
-                <span></span>
-              </div>
-              <p className="text-white text-xl font-semibold mb-2">正在生成 4 张风格图...</p>
-              <p className="text-gray-400 text-sm mb-2">这可能需要 10-30 秒</p>
-              <p className="text-blue-400 text-xs">🎨 使用 7verse Seedream 图生图模型</p>
-              
-              {/* TTS 正在说话的提示 */}
-              {isTtsPlaying && ttsPhrase && (
-                <div className="mt-4 p-3 bg-purple-500/20 rounded-xl border border-purple-400/50">
-                  <div className="flex items-center justify-center gap-2 mb-2">
-                    <div className="flex gap-1.5 items-end">
-                      <span 
-                        className="w-1.5 h-3 bg-purple-400 rounded-full"
-                        style={{ animation: 'voiceWave 1.2s ease-in-out infinite', animationDelay: '0s' }}
-                      ></span>
-                      <span 
-                        className="w-1.5 h-4 bg-purple-400 rounded-full"
-                        style={{ animation: 'voiceWave 1.2s ease-in-out infinite', animationDelay: '0.2s' }}
-                      ></span>
-                      <span 
-                        className="w-1.5 h-2.5 bg-purple-400 rounded-full"
-                        style={{ animation: 'voiceWave 1.2s ease-in-out infinite', animationDelay: '0.4s' }}
-                      ></span>
-                      <span 
-                        className="w-1.5 h-4 bg-purple-400 rounded-full"
-                        style={{ animation: 'voiceWave 1.2s ease-in-out infinite', animationDelay: '0.6s' }}
-                      ></span>
-                      <span 
-                        className="w-1.5 h-3 bg-purple-400 rounded-full"
-                        style={{ animation: 'voiceWave 1.2s ease-in-out infinite', animationDelay: '0.8s' }}
-                      ></span>
-                    </div>
-                    <span className="text-purple-300 text-xs font-medium ml-2">AI is speaking...</span>
-                  </div>
-                  <p className="text-white text-sm italic">"{ttsPhrase}"</p>
-                </div>
-              )}
-              
-              {!isTtsPlaying && !ttsPhrase && (
-                <p className="text-gray-500 text-xs mt-2">AI 正在创作中...</p>
-              )}
-              
-              {generationTime && (
-                <p className="text-green-400 text-sm mt-4">✅ 完成！耗时: {generationTime}</p>
-              )}
+          <div className="flex justify-center mb-4">
+            <div className="flex items-center gap-2 px-4 py-2 bg-gray-800/60 rounded-full text-gray-400 text-sm">
+              <div className="w-4 h-4 border-2 border-purple-400/30 border-t-purple-400 rounded-full animate-spin"></div>
+              Generating styles...
             </div>
           </div>
         )}
@@ -516,91 +527,69 @@ const Step3PickImageVoice = () => {
 
         {/* 图片/音色切换 */}
         {view === 'image' ? (
-          <div className="flex-1 flex flex-col">
+          <div className="flex-1 flex flex-col min-h-0 overflow-y-auto">
             {/* 风格图选择 */}
             <div className="grid grid-cols-2 gap-4 mb-4 flex-shrink-0">
               {styleImages.map((image, index) => (
                 <button
-                  key={image.id || index}
-                  onClick={() => handleImageSelect(index)}
-                  disabled={isGenerating}
+                  key={`style-${index}-${image.type || 'img'}`}
+                  onClick={() => image.url && handleImageSelect(index)}
+                  disabled={!image.url}
                   className={`relative aspect-[3/4] rounded-3xl overflow-hidden transition-all ${
                     selectedImageIndex === index
                       ? 'ring-[3px] ring-white'
-                      : 'opacity-60'
-                  } ${isGenerating ? 'cursor-not-allowed' : ''}`}
+                      : image.url ? 'opacity-70 hover:opacity-100' : 'opacity-50'
+                  } ${!image.url ? 'cursor-wait' : 'cursor-pointer'}`}
                 >
                   {image.url ? (
-                    // 显示生成的图片
-                    <img 
-                      src={image.url} 
-                      alt={`Style ${index + 1}`}
-                      className="w-full h-full object-cover"
-                    />
-                  ) : (
-                    // 占位背景（生成中或未生成）
-                    <div className="w-full h-full bg-gradient-to-br from-gray-700 via-gray-800 to-gray-900 flex items-center justify-center">
-                      {isGenerating ? (
-                        <div className="text-center w-full px-4">
-                          <div className="shimmer-circle w-16 h-16 mx-auto mb-3"></div>
-                          <div className="shimmer-line w-3/4 mx-auto mb-2"></div>
-                          <div className="shimmer-line w-1/2 mx-auto h-2"></div>
+                    // 显示图片
+                    <>
+                      <img 
+                        src={image.url} 
+                        alt={image.type === 'original' ? 'Original' : `Style ${index}`}
+                        className="w-full h-full object-cover"
+                      />
+                      {/* 原图标签 */}
+                      {image.type === 'original' && (
+                        <div className="absolute top-2 left-2 bg-black/60 text-white text-xs px-2 py-1 rounded-full">
+                          Original
                         </div>
-                      ) : (
-                        <span className="text-white text-sm opacity-60">风格图 {index + 1}</span>
                       )}
+                      {/* 风格标签 */}
+                      {image.label && image.type !== 'original' && (
+                        <div className="absolute bottom-2 left-2 bg-purple-500/80 text-white text-xs px-2 py-1 rounded-full">
+                          {image.label}
+                        </div>
+                      )}
+                    </>
+                  ) : (
+                    // 占位背景 - Shimmer 加载效果
+                    <div className="w-full h-full bg-gradient-to-br from-gray-700 via-gray-800 to-gray-900 flex items-center justify-center">
+                      <div className="text-center w-full px-4">
+                        {/* Shimmer 动画 */}
+                        <div className="shimmer-circle w-16 h-16 mx-auto mb-3"></div>
+                        <div className="shimmer-line w-3/4 mx-auto mb-2"></div>
+                        <div className="shimmer-line w-1/2 mx-auto h-2"></div>
+                        <span className="text-white/40 text-xs mt-3 block">
+                          {image.label || `Style ${index}`}
+                        </span>
+                      </div>
                     </div>
                   )}
                 </button>
               ))}
             </div>
 
-            {/* 显示 Step 2 的音色推荐结果 + TTS 说话状态 */}
+            {/* 显示 AI 推荐音色 */}
             {aiRecommendedVoice && (
-              <div className={`rounded-xl p-3 mb-3 transition-all ${
-                isTtsPlaying 
-                  ? 'bg-purple-500/30 border border-purple-400' 
-                  : 'bg-green-500/20 border border-green-500/50'
-              }`}>
-                {/* TTS 正在说话 */}
-                {isTtsPlaying && ttsPhrase ? (
-                  <>
-                    <div className="flex items-center gap-2 mb-2">
-                      <div className="flex gap-1 items-end">
-                        <span 
-                          className="w-1 h-2.5 bg-purple-300 rounded-full"
-                          style={{ animation: 'voiceWave 1.2s ease-in-out infinite', animationDelay: '0s' }}
-                        ></span>
-                        <span 
-                          className="w-1 h-3.5 bg-purple-300 rounded-full"
-                          style={{ animation: 'voiceWave 1.2s ease-in-out infinite', animationDelay: '0.2s' }}
-                        ></span>
-                        <span 
-                          className="w-1 h-2 bg-purple-300 rounded-full"
-                          style={{ animation: 'voiceWave 1.2s ease-in-out infinite', animationDelay: '0.4s' }}
-                        ></span>
-                        <span 
-                          className="w-1 h-3.5 bg-purple-300 rounded-full"
-                          style={{ animation: 'voiceWave 1.2s ease-in-out infinite', animationDelay: '0.6s' }}
-                        ></span>
-                      </div>
-                      <span className="text-purple-200 text-sm font-medium">
-                        {getVoiceName(aiRecommendedVoice)} says:
-                      </span>
-                    </div>
-                    <p className="text-white text-sm italic pl-6">"{ttsPhrase}"</p>
-                  </>
-                ) : (
-                  <>
-                    <p className="text-green-300 text-sm">
-                      ✨ AI 推荐音色：{getVoiceName(aiRecommendedVoice)}
-                    </p>
-                    {aiVoiceReasoning && (
-                      <p className="text-green-200/70 text-xs mt-1">
-                        💭 {aiVoiceReasoning}
-                      </p>
-                    )}
-                  </>
+              <div className="rounded-xl p-3 mb-3 bg-green-500/20 border border-green-500/50">
+                <p className="text-green-300 text-sm">
+                  ✨ AI 推荐音色：{getVoiceName(aiRecommendedVoice)}
+                </p>
+                {aiVoiceReasoning && (
+                  <p className="text-green-200/70 text-xs mt-1">
+                    💭 {aiVoiceReasoning}
+                  </p>
                 )}
               </div>
             )}
@@ -626,13 +615,12 @@ const Step3PickImageVoice = () => {
                   </p>
                 </div>
               </div>
-              <span className="text-white text-2xl font-light">+</span>
             </button>
           </div>
         ) : (
-          <div className="flex-1 flex flex-col">
+          <div className="flex-1 flex flex-col min-h-0">
             {/* 音色库标题 */}
-            <div className="flex justify-between items-center mb-6">
+            <div className="flex justify-between items-center mb-4 flex-shrink-0">
               <button 
                 onClick={() => setView('image')}
                 className="text-white text-2xl"
@@ -643,8 +631,49 @@ const Step3PickImageVoice = () => {
               <div className="w-8" />
             </div>
 
+            {/* 克隆音色按钮 */}
+            <input
+              ref={voiceFileInputRef}
+              type="file"
+              accept="audio/*"
+              onChange={handleVoiceFileUpload}
+              className="hidden"
+            />
+            <button 
+              onClick={() => voiceFileInputRef.current?.click()}
+              disabled={isUploadingVoice}
+              className={`w-full bg-gradient-to-r from-purple-600 to-pink-600 rounded-2xl p-4 flex items-center justify-between mb-4 hover:opacity-90 transition-all flex-shrink-0 ${
+                isUploadingVoice ? 'opacity-50 cursor-not-allowed' : ''
+              } ${clonedVoiceUrl ? 'ring-2 ring-green-400' : ''}`}
+            >
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center">
+                  {isUploadingVoice ? (
+                    <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+                  ) : clonedVoiceUrl ? (
+                    <svg className="w-5 h-5 text-green-400" fill="currentColor" viewBox="0 0 24 24">
+                      <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z" />
+                    </svg>
+                  ) : (
+                    <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" />
+                    </svg>
+                  )}
+                </div>
+                <div className="text-left">
+                  <p className="text-white font-semibold text-sm">
+                    {clonedVoiceUrl ? clonedVoiceName || 'Voice Uploaded' : 'Clone Your Voice'}
+                  </p>
+                  <p className="text-white/70 text-xs">
+                    {isUploadingVoice ? 'Uploading...' : clonedVoiceUrl ? '✓ Ready to use' : 'Upload your audio file'}
+                  </p>
+                </div>
+              </div>
+              <span className="text-white text-xl">{clonedVoiceUrl ? '✓' : '+'}</span>
+            </button>
+
             {/* 当前选中的音色 */}
-            <div className="bg-gray-800/60 rounded-3xl p-4 flex items-center justify-between mb-6">
+            <div className="bg-gray-800/60 rounded-2xl p-4 flex items-center justify-between mb-4 flex-shrink-0">
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 bg-white rounded-full flex items-center justify-center">
                   <svg className="w-5 h-5 text-black" fill="currentColor" viewBox="0 0 24 24">
@@ -660,11 +689,11 @@ const Step3PickImageVoice = () => {
                   </p>
                 </div>
               </div>
-              <button className="text-white text-2xl font-light">+</button>
+              <span className="text-green-400 text-sm">✓</span>
             </div>
 
             {/* 分类标签 */}
-            <div className="flex gap-2 mb-4 overflow-x-auto pb-2 scrollbar-hide">
+            <div className="flex gap-2 mb-4 overflow-x-auto pb-2 scrollbar-hide flex-shrink-0">
               {voiceCategories.map((category) => (
                 <button
                   key={category}

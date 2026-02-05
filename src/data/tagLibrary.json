@@ -1,175 +1,773 @@
 {
-  "metadata": {
-    "version": "1.0.0",
-    "lastModified": "2026-02-02",
-    "totalTags": 100,
-    "categories": {
-      "basic": 34,
-      "persona": 33,
-      "relationship": 33
-    }
-  },
-  "tags": {
-    "basic": {
-      "title": "Visual Vibe",
-      "subtitle": "AI 从图片分析",
-      "count": 34,
-      "subcategories": {
-        "appearance": {
-          "title": "Appearance",
-          "tags": [
-            { "id": "b1", "label": "Stunning", "emoji": "✨" },
-            { "id": "b2", "label": "Cute", "emoji": "🐰" },
-            { "id": "b3", "label": "Hot", "emoji": "🔥" },
-            { "id": "b4", "label": "Soft", "emoji": "🧸" },
-            { "id": "b5", "label": "Sharp", "emoji": "🗡️" },
-            { "id": "b6", "label": "Rugged", "emoji": "🪨" },
-            { "id": "b7", "label": "Elegant", "emoji": "👑" },
-            { "id": "b8", "label": "Edgy", "emoji": "⚡" },
-            { "id": "b9", "label": "Innocent", "emoji": "🌸" },
-            { "id": "b10", "label": "Dangerous", "emoji": "☠️" }
-          ]
-        },
-        "style": {
-          "title": "Style/Aesthetic",
-          "tags": [
-            { "id": "b11", "label": "Dark-Academia", "emoji": "📚" },
-            { "id": "b12", "label": "Cottagecore", "emoji": "🌻" },
-            { "id": "b13", "label": "Cyberpunk", "emoji": "🤖" },
-            { "id": "b14", "label": "Y2K", "emoji": "💿" },
-            { "id": "b15", "label": "Grunge", "emoji": "🎸" },
-            { "id": "b16", "label": "Ethereal", "emoji": "🌙" },
-            { "id": "b17", "label": "Street", "emoji": "🛹" },
-            { "id": "b18", "label": "Vintage", "emoji": "📷" },
-            { "id": "b19", "label": "Minimalist", "emoji": "◽" },
-            { "id": "b20", "label": "Maximalist", "emoji": "🎪" },
-            { "id": "b31", "label": "Kawaii", "emoji": "🎀" },
-            { "id": "b32", "label": "Gothic", "emoji": "🦇" },
-            { "id": "b33", "label": "Vaporwave", "emoji": "🌴" },
-            { "id": "b34", "label": "Fairy-Tale", "emoji": "🏰" }
-          ]
-        },
-        "mood": {
-          "title": "Mood/Energy",
-          "tags": [
-            { "id": "b21", "label": "Golden-Hour", "emoji": "🌅" },
-            { "id": "b22", "label": "Moody", "emoji": "🌧️" },
-            { "id": "b23", "label": "Chaotic", "emoji": "🌀" },
-            { "id": "b24", "label": "Serene", "emoji": "🍃" },
-            { "id": "b25", "label": "Intense", "emoji": "👁️" },
-            { "id": "b26", "label": "Dreamy", "emoji": "☁️" },
-            { "id": "b27", "label": "Electric", "emoji": "⚡" },
-            { "id": "b28", "label": "Melancholic", "emoji": "🥀" },
-            { "id": "b29", "label": "Playful", "emoji": "🎈" },
-            { "id": "b30", "label": "Mysterious", "emoji": "🔮" }
-          ]
-        }
-      }
-    },
+  "version": "2.2",
+  "lastUpdated": "2026-02-05",
+  "notes": "Added labelCN for human review; added L3-inspired content tags (Career-Coach, Language-Tutor, etc) under persona.dimension=content; made JS library auto-group by dimension",
+  "categories": {
     "persona": {
       "title": "Persona",
-      "subtitle": "定义 TA 的性格",
-      "count": 33,
-      "subcategories": {
-        "personality": {
-          "title": "Personality Core",
-          "tags": [
-            { "id": "p1", "label": "Sunshine", "emoji": "☀️", "vibe": "小太阳，治愈系" },
-            { "id": "p2", "label": "Grumpy", "emoji": "😤", "vibe": "傲娇/嘴硬心软" },
-            { "id": "p3", "label": "Chaotic-Good", "emoji": "🃏", "vibe": "混乱善良，不按套路" },
-            { "id": "p4", "label": "Touch-Starved", "emoji": "🫂", "vibe": "渴望被爱" },
-            { "id": "p5", "label": "Morally-Grey", "emoji": "⚖️", "vibe": "亦正亦邪" },
-            { "id": "p6", "label": "Obsessive", "emoji": "🖤", "vibe": "占有欲强/偏执" },
-            { "id": "p7", "label": "Protective", "emoji": "🛡️", "vibe": "保护欲爆棚" },
-            { "id": "p8", "label": "Flirty", "emoji": "😏", "vibe": "撩人精" },
-            { "id": "p9", "label": "Stoic", "emoji": "🗿", "vibe": "面瘫/高冷" },
-            { "id": "p10", "label": "Unhinged", "emoji": "🔥", "vibe": "疯批美人" },
-            { "id": "p11", "label": "Devoted", "emoji": "💎", "vibe": "专一忠诚" },
-            { "id": "p12", "label": "Sarcastic", "emoji": "🙄", "vibe": "毒舌" },
-            { "id": "p13", "label": "Vulnerable", "emoji": "💔", "vibe": "外强中干" },
-            { "id": "p14", "label": "Brooding", "emoji": "🌑", "vibe": "阴郁深沉" },
-            { "id": "p15", "label": "Mischievous", "emoji": "🎭", "vibe": "爱玩爱闹" },
-            { "id": "p31", "label": "Tsundere", "emoji": "💢", "vibe": "傲娇经典款" },
-            { "id": "p32", "label": "Yandere", "emoji": "🔪", "vibe": "病娇/为爱痴狂" }
-          ]
-        },
-        "archetype": {
-          "title": "Identity/Archetype",
-          "tags": [
-            { "id": "p16", "label": "CEO-Energy", "emoji": "💼", "vibe": "霸总气场" },
-            { "id": "p17", "label": "Little-Wolf", "emoji": "🐺", "vibe": "小狼狗" },
-            { "id": "p18", "label": "Golden-Retriever", "emoji": "🐕", "vibe": "大金毛，阳光忠诚" },
-            { "id": "p19", "label": "Black-Cat", "emoji": "🐈‍⬛", "vibe": "高冷猫系" },
-            { "id": "p20", "label": "Mafia-Boss", "emoji": "🎰", "vibe": "黑道大佬" },
-            { "id": "p21", "label": "Idol", "emoji": "🎤", "vibe": "爱豆/明星" },
-            { "id": "p22", "label": "Genius", "emoji": "🧠", "vibe": "天才设定" },
-            { "id": "p23", "label": "Rebel", "emoji": "✊", "vibe": "叛逆者" },
-            { "id": "p24", "label": "Healer", "emoji": "💚", "vibe": "治愈者" },
-            { "id": "p25", "label": "Trickster", "emoji": "🦊", "vibe": "狐狸精/骗子" },
-            { "id": "p26", "label": "Villain", "emoji": "🦹", "vibe": "反派美学" },
-            { "id": "p27", "label": "Knight", "emoji": "⚔️", "vibe": "忠诚骑士" },
-            { "id": "p28", "label": "Royal", "emoji": "👸", "vibe": "皇室贵族" },
-            { "id": "p29", "label": "Outcast", "emoji": "🌙", "vibe": "边缘人/孤狼" },
-            { "id": "p30", "label": "Prodigy", "emoji": "⭐", "vibe": "天选之子" },
-            { "id": "p33", "label": "Himbo", "emoji": "💪😊", "vibe": "傻白甜肌肉男" }
-          ]
-        }
+      "subtitle": "Define their personality",
+      "selectionMode": "multi",
+      "dimensions": {
+        "identity": [
+          {
+            "id": "p1",
+            "label": "CEO",
+            "labelCN": "CEO / 霸总",
+            "emoji": "💼",
+            "category": "persona",
+            "dimension": "identity"
+          },
+          {
+            "id": "p2",
+            "label": "Doctor",
+            "labelCN": "医生",
+            "emoji": "🩺",
+            "category": "persona",
+            "dimension": "identity"
+          },
+          {
+            "id": "p3",
+            "label": "Artist",
+            "labelCN": "艺术家",
+            "emoji": "🎨",
+            "category": "persona",
+            "dimension": "identity"
+          },
+          {
+            "id": "p4",
+            "label": "Student",
+            "labelCN": "学生",
+            "emoji": "📚",
+            "category": "persona",
+            "dimension": "identity"
+          },
+          {
+            "id": "p5",
+            "label": "Idol",
+            "labelCN": "偶像",
+            "emoji": "🎤",
+            "category": "persona",
+            "dimension": "identity"
+          },
+          {
+            "id": "p6",
+            "label": "Mafia-Boss",
+            "labelCN": "黑帮老大",
+            "emoji": "🎰",
+            "category": "persona",
+            "dimension": "identity"
+          },
+          {
+            "id": "p7",
+            "label": "Professor",
+            "labelCN": "教授",
+            "emoji": "🎓",
+            "category": "persona",
+            "dimension": "identity"
+          },
+          {
+            "id": "p8",
+            "label": "Athlete",
+            "labelCN": "运动员",
+            "emoji": "🏆",
+            "category": "persona",
+            "dimension": "identity"
+          },
+          {
+            "id": "p9",
+            "label": "Chef",
+            "labelCN": "厨师",
+            "emoji": "👨‍🍳",
+            "category": "persona",
+            "dimension": "identity"
+          },
+          {
+            "id": "p10",
+            "label": "Musician",
+            "labelCN": "音乐人",
+            "emoji": "🎸",
+            "category": "persona",
+            "dimension": "identity"
+          },
+          {
+            "id": "p11",
+            "label": "Writer",
+            "labelCN": "作家",
+            "emoji": "✍️",
+            "category": "persona",
+            "dimension": "identity"
+          },
+          {
+            "id": "p12",
+            "label": "Model",
+            "labelCN": "模特",
+            "emoji": "📸",
+            "category": "persona",
+            "dimension": "identity"
+          },
+          {
+            "id": "p13",
+            "label": "Hacker",
+            "labelCN": "黑客",
+            "emoji": "💻",
+            "category": "persona",
+            "dimension": "identity"
+          },
+          {
+            "id": "p14",
+            "label": "Royalty",
+            "labelCN": "王室 / 皇族",
+            "emoji": "👑",
+            "category": "persona",
+            "dimension": "identity"
+          },
+          {
+            "id": "p15",
+            "label": "Soldier",
+            "labelCN": "军人",
+            "emoji": "🎖️",
+            "category": "persona",
+            "dimension": "identity"
+          },
+          {
+            "id": "p16",
+            "label": "Detective",
+            "labelCN": "侦探",
+            "emoji": "🔍",
+            "category": "persona",
+            "dimension": "identity"
+          },
+          {
+            "id": "p17",
+            "label": "Barista",
+            "labelCN": "咖啡师",
+            "emoji": "☕",
+            "category": "persona",
+            "dimension": "identity"
+          },
+          {
+            "id": "p18",
+            "label": "Pilot",
+            "labelCN": "飞行员",
+            "emoji": "✈️",
+            "category": "persona",
+            "dimension": "identity"
+          },
+          {
+            "id": "p19",
+            "label": "Dancer",
+            "labelCN": "舞者",
+            "emoji": "💃",
+            "category": "persona",
+            "dimension": "identity"
+          },
+          {
+            "id": "p20",
+            "label": "Streamer",
+            "labelCN": "主播",
+            "emoji": "🎮",
+            "category": "persona",
+            "dimension": "identity"
+          }
+        ],
+        "style": [
+          {
+            "id": "p21",
+            "label": "Dark-Academia",
+            "labelCN": "暗黑学院风",
+            "emoji": "📖",
+            "category": "persona",
+            "dimension": "style"
+          },
+          {
+            "id": "p22",
+            "label": "Streetwear",
+            "labelCN": "街头潮流",
+            "emoji": "🛹",
+            "category": "persona",
+            "dimension": "style"
+          },
+          {
+            "id": "p23",
+            "label": "Cottagecore",
+            "labelCN": "田园风",
+            "emoji": "🌻",
+            "category": "persona",
+            "dimension": "style"
+          },
+          {
+            "id": "p24",
+            "label": "Cyberpunk",
+            "labelCN": "赛博朋克",
+            "emoji": "🤖",
+            "category": "persona",
+            "dimension": "style"
+          },
+          {
+            "id": "p25",
+            "label": "Vintage",
+            "labelCN": "复古",
+            "emoji": "📷",
+            "category": "persona",
+            "dimension": "style"
+          },
+          {
+            "id": "p26",
+            "label": "Y2K",
+            "labelCN": "Y2K / 千禧风",
+            "emoji": "💿",
+            "category": "persona",
+            "dimension": "style"
+          },
+          {
+            "id": "p27",
+            "label": "Grunge",
+            "labelCN": "颓废摇滚风",
+            "emoji": "🎸",
+            "category": "persona",
+            "dimension": "style"
+          },
+          {
+            "id": "p28",
+            "label": "Preppy",
+            "labelCN": "学院风",
+            "emoji": "🎀",
+            "category": "persona",
+            "dimension": "style"
+          },
+          {
+            "id": "p29",
+            "label": "Gothic",
+            "labelCN": "哥特风",
+            "emoji": "🦇",
+            "category": "persona",
+            "dimension": "style"
+          },
+          {
+            "id": "p30",
+            "label": "Steampunk",
+            "labelCN": "蒸汽朋克",
+            "emoji": "⚙️",
+            "category": "persona",
+            "dimension": "style"
+          },
+          {
+            "id": "p31",
+            "label": "Boho",
+            "labelCN": "波西米亚",
+            "emoji": "🌸",
+            "category": "persona",
+            "dimension": "style"
+          },
+          {
+            "id": "p32",
+            "label": "Sporty",
+            "labelCN": "运动风",
+            "emoji": "⚽",
+            "category": "persona",
+            "dimension": "style"
+          },
+          {
+            "id": "p33",
+            "label": "Vaporwave",
+            "labelCN": "蒸汽波",
+            "emoji": "🌴",
+            "category": "persona",
+            "dimension": "style"
+          },
+          {
+            "id": "p34",
+            "label": "Film-Noir",
+            "labelCN": "黑色电影",
+            "emoji": "🎬",
+            "category": "persona",
+            "dimension": "style"
+          },
+          {
+            "id": "p35",
+            "label": "Kawaii",
+            "labelCN": "可爱风",
+            "emoji": "🎀",
+            "category": "persona",
+            "dimension": "style"
+          },
+          {
+            "id": "p36",
+            "label": "Old-Money",
+            "labelCN": "老钱风",
+            "emoji": "💎",
+            "category": "persona",
+            "dimension": "style"
+          },
+          {
+            "id": "p37",
+            "label": "Anime",
+            "labelCN": "动漫风",
+            "emoji": "🎌",
+            "category": "persona",
+            "dimension": "style"
+          },
+          {
+            "id": "p38",
+            "label": "Rockstar",
+            "labelCN": "摇滚明星风",
+            "emoji": "🎤",
+            "category": "persona",
+            "dimension": "style"
+          },
+          {
+            "id": "p39",
+            "label": "Fantasy",
+            "labelCN": "奇幻风",
+            "emoji": "🏰",
+            "category": "persona",
+            "dimension": "style"
+          },
+          {
+            "id": "p40",
+            "label": "Fairycore",
+            "labelCN": "仙女风",
+            "emoji": "🧚",
+            "category": "persona",
+            "dimension": "style"
+          }
+        ],
+        "roleplay": [
+          {
+            "id": "p41",
+            "label": "Vampire",
+            "labelCN": "吸血鬼",
+            "emoji": "🧛",
+            "category": "persona",
+            "dimension": "roleplay"
+          },
+          {
+            "id": "p42",
+            "label": "Werewolf",
+            "labelCN": "狼人",
+            "emoji": "🐺",
+            "category": "persona",
+            "dimension": "roleplay"
+          },
+          {
+            "id": "p43",
+            "label": "Demon",
+            "labelCN": "恶魔",
+            "emoji": "😈",
+            "category": "persona",
+            "dimension": "roleplay"
+          },
+          {
+            "id": "p44",
+            "label": "Angel",
+            "labelCN": "天使",
+            "emoji": "👼",
+            "category": "persona",
+            "dimension": "roleplay"
+          },
+          {
+            "id": "p45",
+            "label": "Yandere",
+            "labelCN": "病娇",
+            "emoji": "🔪",
+            "category": "persona",
+            "dimension": "roleplay"
+          },
+          {
+            "id": "p46",
+            "label": "Tsundere",
+            "labelCN": "傲娇",
+            "emoji": "💢",
+            "category": "persona",
+            "dimension": "roleplay"
+          },
+          {
+            "id": "p47",
+            "label": "Villain",
+            "labelCN": "反派",
+            "emoji": "🦹",
+            "category": "persona",
+            "dimension": "roleplay"
+          },
+          {
+            "id": "p48",
+            "label": "Anti-Hero",
+            "labelCN": "反英雄",
+            "emoji": "🎭",
+            "category": "persona",
+            "dimension": "roleplay"
+          },
+          {
+            "id": "p49",
+            "label": "Prince",
+            "labelCN": "王子",
+            "emoji": "🤴",
+            "category": "persona",
+            "dimension": "roleplay"
+          },
+          {
+            "id": "p50",
+            "label": "Knight",
+            "labelCN": "骑士",
+            "emoji": "⚔️",
+            "category": "persona",
+            "dimension": "roleplay"
+          },
+          {
+            "id": "p51",
+            "label": "Assassin",
+            "labelCN": "刺客",
+            "emoji": "🗡️",
+            "category": "persona",
+            "dimension": "roleplay"
+          },
+          {
+            "id": "p52",
+            "label": "Mage",
+            "labelCN": "法师",
+            "emoji": "🧙",
+            "category": "persona",
+            "dimension": "roleplay"
+          },
+          {
+            "id": "p53",
+            "label": "Elf",
+            "labelCN": "精灵",
+            "emoji": "🧝",
+            "category": "persona",
+            "dimension": "roleplay"
+          },
+          {
+            "id": "p54",
+            "label": "Ghost",
+            "labelCN": "幽灵",
+            "emoji": "👻",
+            "category": "persona",
+            "dimension": "roleplay"
+          },
+          {
+            "id": "p55",
+            "label": "Android",
+            "labelCN": "仿生人",
+            "emoji": "🤖",
+            "category": "persona",
+            "dimension": "roleplay"
+          },
+          {
+            "id": "p56",
+            "label": "Alien",
+            "labelCN": "外星人",
+            "emoji": "👽",
+            "category": "persona",
+            "dimension": "roleplay"
+          },
+          {
+            "id": "p57",
+            "label": "Pirate",
+            "labelCN": "海盗",
+            "emoji": "🏴‍☠️",
+            "category": "persona",
+            "dimension": "roleplay"
+          },
+          {
+            "id": "p58",
+            "label": "Witch",
+            "labelCN": "女巫",
+            "emoji": "🧙‍♀️",
+            "category": "persona",
+            "dimension": "roleplay"
+          },
+          {
+            "id": "p59",
+            "label": "Dragon",
+            "labelCN": "龙",
+            "emoji": "🐉",
+            "category": "persona",
+            "dimension": "roleplay"
+          },
+          {
+            "id": "p60",
+            "label": "Fallen-Angel",
+            "labelCN": "堕天使",
+            "emoji": "🖤",
+            "category": "persona",
+            "dimension": "roleplay"
+          }
+        ],
+        "content": [
+          {
+            "id": "p61",
+            "label": "Career-Coach",
+            "labelCN": "职场教练",
+            "emoji": "🧭",
+            "category": "persona",
+            "dimension": "content"
+          },
+          {
+            "id": "p62",
+            "label": "Language-Tutor",
+            "labelCN": "语言陪练",
+            "emoji": "🗣️",
+            "category": "persona",
+            "dimension": "content"
+          },
+          {
+            "id": "p63",
+            "label": "Wellness-Coach",
+            "labelCN": "身心疗愈",
+            "emoji": "🧘",
+            "category": "persona",
+            "dimension": "content"
+          },
+          {
+            "id": "p64",
+            "label": "Fashion-Stylist",
+            "labelCN": "穿搭顾问",
+            "emoji": "👗",
+            "category": "persona",
+            "dimension": "content"
+          },
+          {
+            "id": "p65",
+            "label": "Therapist",
+            "labelCN": "心理咨询",
+            "emoji": "🫶",
+            "category": "persona",
+            "dimension": "content"
+          },
+          {
+            "id": "p66",
+            "label": "Study-Buddy",
+            "labelCN": "学习搭子",
+            "emoji": "📝",
+            "category": "persona",
+            "dimension": "content"
+          },
+          {
+            "id": "p67",
+            "label": "Gym-Buddy",
+            "labelCN": "健身搭子",
+            "emoji": "🏋️",
+            "category": "persona",
+            "dimension": "content"
+          },
+          {
+            "id": "p68",
+            "label": "Travel-Buddy",
+            "labelCN": "旅行搭子",
+            "emoji": "🧳",
+            "category": "persona",
+            "dimension": "content"
+          },
+          {
+            "id": "p69",
+            "label": "Daily-Life",
+            "labelCN": "日常陪伴",
+            "emoji": "☀️",
+            "category": "persona",
+            "dimension": "content"
+          },
+          {
+            "id": "p70",
+            "label": "Romance",
+            "labelCN": "恋爱氛围",
+            "emoji": "💘",
+            "category": "persona",
+            "dimension": "content"
+          },
+          {
+            "id": "p71",
+            "label": "Healing-Treehole",
+            "labelCN": "治愈树洞",
+            "emoji": "🌧️",
+            "category": "persona",
+            "dimension": "content"
+          },
+          {
+            "id": "p72",
+            "label": "Glow-Up",
+            "labelCN": "变美变强",
+            "emoji": "✨",
+            "category": "persona",
+            "dimension": "content"
+          },
+          {
+            "id": "p73",
+            "label": "Personal-Growth",
+            "labelCN": "个人成长",
+            "emoji": "📈",
+            "category": "persona",
+            "dimension": "content"
+          },
+          {
+            "id": "p74",
+            "label": "Support-System",
+            "labelCN": "情绪支撑",
+            "emoji": "🧸",
+            "category": "persona",
+            "dimension": "content"
+          },
+          {
+            "id": "p75",
+            "label": "Late-Night-Talk",
+            "labelCN": "深夜聊天",
+            "emoji": "🌙",
+            "category": "persona",
+            "dimension": "content"
+          },
+          {
+            "id": "p76",
+            "label": "Anime-IP",
+            "labelCN": "动漫IP",
+            "emoji": "🎌",
+            "category": "persona",
+            "dimension": "content"
+          },
+          {
+            "id": "p77",
+            "label": "Gaming-IP",
+            "labelCN": "游戏世界",
+            "emoji": "🕹️",
+            "category": "persona",
+            "dimension": "content"
+          },
+          {
+            "id": "p78",
+            "label": "Movie-TV",
+            "labelCN": "影视剧集",
+            "emoji": "🍿",
+            "category": "persona",
+            "dimension": "content"
+          }
+        ]
       }
     },
     "relationship": {
       "title": "Relationship",
-      "subtitle": "你在关系中的角色",
-      "count": 33,
-      "subcategories": {
-        "type": {
-          "title": "Relationship Type",
-          "tags": [
-            { "id": "r1", "label": "Soulmate", "emoji": "💞" },
-            { "id": "r2", "label": "Rival", "emoji": "⚔️" },
-            { "id": "r3", "label": "Frenemy", "emoji": "😈" },
-            { "id": "r4", "label": "Ex", "emoji": "💔" },
-            { "id": "r5", "label": "Secret-Crush", "emoji": "🤫" },
-            { "id": "r6", "label": "Forbidden", "emoji": "🚫" },
-            { "id": "r7", "label": "Childhood-Friend", "emoji": "🧒" },
-            { "id": "r8", "label": "Mentor", "emoji": "🎓" },
-            { "id": "r9", "label": "Situationship", "emoji": "🤷" },
-            { "id": "r10", "label": "Nemesis", "emoji": "🔥" },
-            { "id": "r33", "label": "Found-Family", "emoji": "🏠❤️", "vibe": "非血缘的家人" }
-          ]
+      "subtitle": "Your connection with character",
+      "selectionMode": "single",
+      "tags": [
+        {
+          "id": "r1",
+          "label": "Soulmate",
+          "labelCN": "灵魂伴侣",
+          "emoji": "💞",
+          "category": "relationship",
+          "description": "Your perfect match, deeply connected"
         },
-        "trope": {
-          "title": "Classic Tropes",
-          "tags": [
-            { "id": "r11", "label": "Enemies-to-Lovers", "emoji": "⚔️❤️", "vibe": "相爱相杀" },
-            { "id": "r12", "label": "Fake-Dating", "emoji": "💍", "vibe": "假戏真做" },
-            { "id": "r13", "label": "Slow-Burn", "emoji": "🕯️", "vibe": "细水长流" },
-            { "id": "r14", "label": "Love-Triangle", "emoji": "🔺", "vibe": "三角恋" },
-            { "id": "r15", "label": "Second-Chance", "emoji": "🔄", "vibe": "破镜重圆" },
-            { "id": "r16", "label": "Forced-Proximity", "emoji": "🏠", "vibe": "强制同居" },
-            { "id": "r17", "label": "Grumpy-Sunshine", "emoji": "🌤️", "vibe": "冰火组合" },
-            { "id": "r18", "label": "One-Bed", "emoji": "🛏️", "vibe": "只有一张床" },
-            { "id": "r19", "label": "He-Falls-First", "emoji": "📉", "vibe": "先动心的是他" },
-            { "id": "r20", "label": "Obsessive-Love", "emoji": "🖤", "vibe": "病娇式爱情" },
-            { "id": "r31", "label": "Friends-to-Lovers", "emoji": "👫❤️", "vibe": "友情升华" }
-          ]
+        {
+          "id": "r2",
+          "label": "Protector",
+          "labelCN": "守护者",
+          "emoji": "🛡️",
+          "category": "relationship",
+          "description": "Always watching over you"
         },
-        "vibe": {
-          "title": "Relationship Vibe",
-          "tags": [
-            { "id": "r21", "label": "Simp-for-You", "emoji": "🥺", "vibe": "TA 对你无条件宠溺" },
-            { "id": "r22", "label": "Hard-to-Get", "emoji": "🙄", "vibe": "欲擒故纵" },
-            { "id": "r23", "label": "Whipped", "emoji": "🐶", "vibe": "完全被拿捏" },
-            { "id": "r24", "label": "Toxic", "emoji": "☠️", "vibe": "有毒但上头" },
-            { "id": "r25", "label": "Wholesome", "emoji": "🌈", "vibe": "纯爱/治愈" },
-            { "id": "r26", "label": "Chaotic", "emoji": "🔥", "vibe": "疯狂混乱" },
-            { "id": "r27", "label": "Telepathic", "emoji": "🧠", "vibe": "心有灵犀" },
-            { "id": "r28", "label": "Codependent", "emoji": "🔗", "vibe": "相互依赖" },
-            { "id": "r29", "label": "Push-Pull", "emoji": "🎢", "vibe": "拉扯/若即若离" },
-            { "id": "r30", "label": "Ride-or-Die", "emoji": "💀", "vibe": "生死相依" },
-            { "id": "r32", "label": "Stalker-Vibes", "emoji": "👁️‍🗨️", "vibe": "TA 一直在看着你" }
-          ]
+        {
+          "id": "r3",
+          "label": "Rival",
+          "labelCN": "对手",
+          "emoji": "⚔️",
+          "category": "relationship",
+          "description": "Competitive tension, pushing each other"
+        },
+        {
+          "id": "r4",
+          "label": "Secret-Admirer",
+          "labelCN": "暗恋者",
+          "emoji": "🤫",
+          "category": "relationship",
+          "description": "Hidden feelings, stolen glances"
+        },
+        {
+          "id": "r5",
+          "label": "Complicated",
+          "labelCN": "复杂关系",
+          "emoji": "🔥",
+          "category": "relationship",
+          "description": "It's complicated... but exciting"
+        },
+        {
+          "id": "r6",
+          "label": "Childhood-Friend",
+          "labelCN": "青梅竹马",
+          "emoji": "🧒",
+          "category": "relationship",
+          "description": "Known each other forever"
+        },
+        {
+          "id": "r7",
+          "label": "Mentor",
+          "labelCN": "导师",
+          "emoji": "🎓",
+          "category": "relationship",
+          "description": "Guiding and teaching you"
+        },
+        {
+          "id": "r8",
+          "label": "Ex",
+          "labelCN": "前任",
+          "emoji": "💔",
+          "category": "relationship",
+          "description": "History between you two"
+        },
+        {
+          "id": "r9",
+          "label": "Fake-Dating",
+          "labelCN": "假装恋爱",
+          "emoji": "💍",
+          "category": "relationship",
+          "description": "Pretending... or is it real?"
+        },
+        {
+          "id": "r10",
+          "label": "Enemies",
+          "labelCN": "敌人",
+          "emoji": "😈",
+          "category": "relationship",
+          "description": "Tension and conflict"
+        },
+        {
+          "id": "r11",
+          "label": "Boss",
+          "labelCN": "上司",
+          "emoji": "💼",
+          "category": "relationship",
+          "description": "Professional power dynamic"
+        },
+        {
+          "id": "r12",
+          "label": "Roommate",
+          "labelCN": "室友",
+          "emoji": "🏠",
+          "category": "relationship",
+          "description": "Sharing space, building connection"
+        },
+        {
+          "id": "r13",
+          "label": "Stranger",
+          "labelCN": "陌生人",
+          "emoji": "👀",
+          "category": "relationship",
+          "description": "Just met, instant chemistry"
+        },
+        {
+          "id": "r14",
+          "label": "Best-Friend",
+          "labelCN": "挚友",
+          "emoji": "🤝",
+          "category": "relationship",
+          "description": "More than friends?"
+        },
+        {
+          "id": "r15",
+          "label": "Forbidden",
+          "labelCN": "禁忌之恋",
+          "emoji": "🚫",
+          "category": "relationship",
+          "description": "Should not, but cannot resist"
         }
-      }
+      ]
     }
   }
 }

@@ -140,10 +140,19 @@ export async function uploadImageToImgbb(base64Data) {
     const { blob, mimeType } = base64ToBlob(base64Data);
     console.log(`📦 文件大小: ${Math.round(blob.size / 1024)}KB, 类型: ${mimeType}`);
     
+    // 确定文件扩展名
+    const extension = mimeType === 'image/png' ? 'png' : 'jpg';
+    const fileName = `character_image.${extension}`;
+    
+    // 创建一个带有正确 MIME 类型的 File 对象
+    const file = new File([blob], fileName, { type: mimeType });
+    
     // 构建 FormData
     const formData = new FormData();
-    formData.append('file', blob, 'character_image.jpg');
-    formData.append('mime_type', mimeType);
+    formData.append('file', file);
+    formData.append('mime_type', mimeType);  // 显式传递 mime_type
+    
+    console.log('📝 上传参数:', { fileName, mimeType });
     
     // 调用 7verse 存储 API（通过 Vite 代理）
     const response = await fetch('/api/7verse-storage/file', {
@@ -159,6 +168,7 @@ export async function uploadImageToImgbb(base64Data) {
     
     console.log('📨 7verse 存储响应:', response.status, JSON.stringify(result).substring(0, 200));
     
+    // 处理各种成功响应格式
     if (result.ok && result.data?.url) {
       console.log(`✅ 7verse 上传成功，耗时: ${duration}s`);
       console.log('🔗 图片 URL:', result.data.url);
@@ -167,8 +177,14 @@ export async function uploadImageToImgbb(base64Data) {
       console.log(`✅ 7verse 上传成功，耗时: ${duration}s`);
       console.log('🔗 图片 URL:', result.data.url);
       return result.data.url;
+    } else if (result.url) {
+      // 直接返回 url 的情况
+      console.log(`✅ 7verse 上传成功，耗时: ${duration}s`);
+      console.log('🔗 图片 URL:', result.url);
+      return result.url;
     } else {
       console.error('❌ 7verse 上传失败:', result);
+      console.error('❌ 错误信息:', result.data?.message || result.msg || '未知错误');
       return null;
     }
   } catch (error) {
@@ -177,6 +193,66 @@ export async function uploadImageToImgbb(base64Data) {
   }
 }
 
+// ============================================================================
+// Flux API - 图生图（flux2.vivix.work）
+// ============================================================================
+export async function callFluxAPI(prompt, imageBase64, width = 1024, height = 1024) {
+  const startTime = performance.now();
+  
+  console.log('🎨 调用 Flux 图生图 API...');
+  console.log(`📝 Prompt: ${prompt.substring(0, 50)}...`);
+  console.log(`📐 尺寸: ${width}x${height}`);
+  
+  try {
+    const requestBody = {
+      prompt: prompt,
+      image: imageBase64,  // data:image/jpeg;base64,xxx 格式
+      width: width,
+      height: height,
+    };
+    
+    // 使用 Vite 代理解决 CORS 问题
+    const response = await fetch('/api/flux/generate', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(requestBody),
+    });
+    
+    const result = await response.json();
+    const duration = ((performance.now() - startTime) / 1000).toFixed(2);
+    
+    console.log('📨 Flux 响应:', response.status, result.success ? '成功' : '失败');
+    
+    if (result.success && result.image_base64) {
+      console.log(`✅ Flux 图生图成功，耗时: ${duration}s`);
+      return {
+        success: true,
+        imageBase64: result.image_base64,  // 返回 base64 图片
+        duration: duration + 's',
+      };
+    } else {
+      console.error('❌ Flux API 失败:', result);
+      return {
+        success: false,
+        error: result.error || result.message || '未知错误',
+        duration: duration + 's',
+      };
+    }
+  } catch (error) {
+    console.error('❌ Flux API 异常:', error);
+    return {
+      success: false,
+      error: error.message,
+      duration: '0s',
+    };
+  }
+}
+
+// ============================================================================
+// 7verse API - 图生图（备用）
+// ============================================================================
 export async function call7verseAPI(imagePrompt, refImageUrl = null, count = 1) {
   const startTime = performance.now();
   const { sevenVerse } = API_CONFIG;
@@ -415,6 +491,281 @@ export async function callElevenLabsTTS(voiceId, text) {
       success: false,
       error: error.message,
       audioUrl: null,
+      duration: `${duration}s`,
+      durationMs: endTime - startTime,
+    };
+  }
+}
+
+// ============================================================================
+// 7verse Video Generation API - 图生视频 (Image-to-Video)
+// ============================================================================
+// 根据图片和音色样本生成视频
+// ============================================================================
+export async function callVideoGenAPI(imageUrl, voiceSampleUrl) {
+  const startTime = performance.now();
+  const { sevenVerse } = API_CONFIG;
+  
+  try {
+    console.log('🎬 调用 7verse 视频生成 API...');
+    console.log(`   Image URL: ${imageUrl.substring(0, 50)}...`);
+    console.log(`   Voice Sample URL: ${voiceSampleUrl.substring(0, 50)}...`);
+    
+    const requestBody = {
+      image_url: imageUrl,
+      voice_sample_url: voiceSampleUrl,
+    };
+    
+    const response = await fetch('/api/7verse/gen/videos', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${sevenVerse.token}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(requestBody),
+    });
+    
+    const result = await response.json();
+    const endTime = performance.now();
+    const duration = ((endTime - startTime) / 1000).toFixed(2);
+    
+    console.log('📨 7verse 视频响应:', response.status, JSON.stringify(result).substring(0, 200));
+    
+    if (result.ok && result.data?.file_url) {
+      console.log(`✅ 视频生成成功，耗时: ${duration}s`);
+      console.log('🎥 视频 URL:', result.data.file_url);
+      
+      return {
+        success: true,
+        videoUrl: result.data.file_url,
+        status: result.data.status,
+        duration: `${duration}s`,
+        durationMs: endTime - startTime,
+      };
+    } else {
+      console.error('❌ 视频生成失败:', result);
+      return {
+        success: false,
+        error: result.msg || result.message || '视频生成失败',
+        duration: `${duration}s`,
+        durationMs: endTime - startTime,
+      };
+    }
+  } catch (error) {
+    const endTime = performance.now();
+    const duration = ((endTime - startTime) / 1000).toFixed(2);
+    
+    console.error('❌ 视频生成 API 调用失败:', error);
+    
+    return {
+      success: false,
+      error: error.message,
+      duration: `${duration}s`,
+      durationMs: endTime - startTime,
+    };
+  }
+}
+
+// ============================================================================
+// 7verse I2V API - 图生视频（Image to Video）
+// ============================================================================
+// 使用即梦/SeedDance 模型，根据首帧图片和 Prompt 生成视频
+// ============================================================================
+export async function callI2VAPI(firstFrameUrl, prompt, options = {}) {
+  const startTime = performance.now();
+  const { sevenVerse } = API_CONFIG;
+  
+  const {
+    duration = 5,           // 视频时长 4-12 秒
+    ratio = '9:16',         // 宽高比
+    async: isAsync = true,  // 异步模式（推荐）
+    generateAudio = false,  // 是否生成配音
+    vendor = 'VIDEO_VENDOR_SEEDANCE',
+  } = options;
+  
+  try {
+    console.log('🎬 调用 I2V 图生视频 API...');
+    console.log(`   首帧图片: ${firstFrameUrl.substring(0, 50)}...`);
+    console.log(`   Prompt: ${prompt.substring(0, 50)}...`);
+    console.log(`   时长: ${duration}s, 比例: ${ratio}`);
+    
+    const requestBody = {
+      first_frame_url: firstFrameUrl,
+      prompt: prompt,
+      duration: duration,
+      ratio: ratio,
+      async: isAsync,
+      generate_audio: generateAudio,
+      vendor: vendor,
+    };
+    
+    const response = await fetch('/api/7verse/gen/video/i2v', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${sevenVerse.token}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(requestBody),
+    });
+    
+    const result = await response.json();
+    const endTime = performance.now();
+    const durationTime = ((endTime - startTime) / 1000).toFixed(2);
+    
+    console.log('📨 I2V 响应:', response.status, JSON.stringify(result).substring(0, 200));
+    
+    if (result.ok && result.data) {
+      console.log(`✅ I2V 视频生成成功，耗时: ${durationTime}s`);
+      
+      return {
+        success: true,
+        videoUrl: result.data.file_url || result.data.video_url,
+        taskId: result.data.task_id,  // 异步模式会返回 task_id
+        status: result.data.status,
+        duration: `${durationTime}s`,
+        durationMs: endTime - startTime,
+      };
+    } else {
+      console.error('❌ I2V 生成失败:', result);
+      return {
+        success: false,
+        error: result.msg || result.message || 'I2V 生成失败',
+        duration: `${durationTime}s`,
+        durationMs: endTime - startTime,
+      };
+    }
+  } catch (error) {
+    const endTime = performance.now();
+    const durationTime = ((endTime - startTime) / 1000).toFixed(2);
+    
+    console.error('❌ I2V API 调用失败:', error);
+    
+    return {
+      success: false,
+      error: error.message,
+      duration: `${durationTime}s`,
+      durationMs: endTime - startTime,
+    };
+  }
+}
+
+// ============================================================================
+// Qwen API - 大语言模型（支持流式输出）
+// ============================================================================
+// Qwen3-235B 模型，可选 thinking 模式
+// ============================================================================
+export async function callQwenAPI(messages, options = {}) {
+  const startTime = performance.now();
+  
+  const {
+    model = 'Qwen3-235B-A22B-GPTQ-Int4',
+    stream = true,
+    enableThinking = false,
+    maxTokens = 2000,
+    temperature = 0.7,
+    onChunk = null,  // 流式回调函数
+  } = options;
+  
+  try {
+    console.log('🤖 调用 Qwen API...');
+    console.log(`   模型: ${model}`);
+    console.log(`   流式: ${stream}, Thinking: ${enableThinking}`);
+    
+    const requestBody = {
+      model: model,
+      messages: messages,
+      max_tokens: maxTokens,
+      temperature: temperature,
+      stream: stream,
+      chat_template_kwargs: {
+        enable_thinking: enableThinking,
+      },
+    };
+    
+    const response = await fetch('/api/qwen/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(requestBody),
+    });
+    
+    if (!response.ok) {
+      throw new Error(`Qwen API Error: ${response.status}`);
+    }
+    
+    // 流式处理
+    if (stream) {
+      const reader = response.body.getReader();
+      const decoder = new TextDecoder();
+      let fullContent = '';
+      
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        
+        const chunk = decoder.decode(value, { stream: true });
+        const lines = chunk.split('\n');
+        
+        for (const line of lines) {
+          if (line.startsWith('data: ')) {
+            const jsonStr = line.slice(6);
+            if (jsonStr.trim() === '[DONE]') continue;
+            
+            try {
+              const data = JSON.parse(jsonStr);
+              const content = data.choices?.[0]?.delta?.content;
+              if (content) {
+                fullContent += content;
+                // 调用回调函数（用于实时显示）
+                if (onChunk) {
+                  onChunk(content, fullContent);
+                }
+              }
+            } catch (e) {
+              // 忽略解析错误
+            }
+          }
+        }
+      }
+      
+      const endTime = performance.now();
+      const duration = ((endTime - startTime) / 1000).toFixed(2);
+      
+      console.log(`✅ Qwen 流式响应完成，耗时: ${duration}s`);
+      
+      return {
+        success: true,
+        text: fullContent,
+        duration: `${duration}s`,
+        durationMs: endTime - startTime,
+      };
+    } else {
+      // 非流式处理
+      const result = await response.json();
+      const endTime = performance.now();
+      const duration = ((endTime - startTime) / 1000).toFixed(2);
+      
+      const content = result.choices?.[0]?.message?.content || '';
+      
+      console.log(`✅ Qwen 响应成功，耗时: ${duration}s`);
+      
+      return {
+        success: true,
+        text: content,
+        duration: `${duration}s`,
+        durationMs: endTime - startTime,
+      };
+    }
+  } catch (error) {
+    const endTime = performance.now();
+    const duration = ((endTime - startTime) / 1000).toFixed(2);
+    
+    console.error('❌ Qwen API 调用失败:', error);
+    
+    return {
+      success: false,
+      error: error.message,
       duration: `${duration}s`,
       durationMs: endTime - startTime,
     };

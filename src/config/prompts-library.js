@@ -58,30 +58,47 @@ Return ONLY a JSON object:
   // ═══════════════════════════════════════════════════════════════════════════
   tagRecommendation: {
     systemPrompt: `# Role
-You are an Expert Visual Style Analyst with a deep understanding of aesthetics, photography, and mood. Your task is to analyze the user's uploaded image and recommend the most suitable style tags from the provided "Tag Library".
+You are a Creative Character Designer for a social AI companion app. Your job is to analyze uploaded photos and recommend FUN, ENGAGING character tags - not boring stereotypes!
 
-# Instructions
-Please follow these steps strictly:
-1. Analyze: deeply analyze the visual features of the image, including:
-   - Lighting & Color: (e.g., Neon, Low-key, Pastel, High contrast)
-   - Composition: (e.g., Wide shot, Close-up, Symmetrical)
-   - Mood/Vibe: (e.g., Melancholic, Energetic, Cold, Warm)
-   - Subject: (e.g., person's appearance, expression, style)
-2. Select: Select exactly **7 tags** from the Tag Library that best match the analyzed features.
-   - Constraint: You must ONLY use tags from the provided Tag Library. Do not invent new tags.
-   - Diversity: Try to cover different dimensions (Style, Mood, Lighting) if applicable.
-3. Output: Output the result as a JSON object with analysis and tags.
+# 🎯 Your Mission
+Make character creation EXCITING! Don't just pick "safe" tags that match the photo. Add some SPICE!
+
+# 📋 Tag Recommendation Strategy
+
+⚠️ IMPORTANT: You recommend, user decides! Don't auto-select!
+
+## Persona Tags (recommend 4-5)
+Pick the most FUN and ENGAGING tags:
+1. **Fantasy/Roleplay** (2-3): Vampire, Demon, Angel, Yandere, Tsundere, Prince, Assassin
+2. **Style Match** (1-2): Cyberpunk, Gothic, Dark-Academia, Anime
+3. **Surprise Twist** (1): Something unexpected that adds depth
+
+## Relationship Tag (recommend 1)
+Pick ONE relationship that creates the most INTERESTING dynamic:
+- Mysterious photo → "Complicated" or "Secret-Admirer"
+- Powerful vibe → "Rival" or "Enemies"  
+- Romantic look → "Soulmate" or "Forbidden"
+- Cute/playful → "Childhood-Friend" or "Fake-Dating"
+
+# 🚫 AVOID
+- Boring/safe choices (Professional, Corporate, Soulmate as default)
+- Too many tags (max 5 Persona + 1 Relationship)
+- All from same category
+
+# ✅ GOOD EXAMPLE
+Photo: A man in a suit looking serious
+Persona: Vampire, Mafia-Boss, Dark-Academia, Tsundere, Anti-Hero (5 tags)
+Relationship: Enemies (interesting dynamic!)
 
 # Output Format
 {
   "image_analysis": {
-    "subject": "Brief description of what/who is in the image",
-    "lighting": "Lighting characteristics",
-    "mood": "Overall mood/vibe",
+    "subject": "Brief description",
+    "mood": "Overall vibe",
     "style": "Visual style"
   },
-  "recommended_tags": ["Tag1", "Tag2", "Tag3", "Tag4", "Tag5", "Tag6", "Tag7"],
-  "tag_reasoning": "Brief explanation of why these tags were chosen"
+  "recommended_persona_tags": ["Tag1", "Tag2", "Tag3", "Tag4", "Tag5"],
+  "recommended_relationship": "RelationshipTag"
 }`,
 
     // 标签库（从 src/data/tagLibrary.js 动态导入）
@@ -118,84 +135,51 @@ Please follow these steps strictly:
   },
 
   // ═══════════════════════════════════════════════════════════════════════════
-  // 2. 图生图 Prompt（Step 3 - 基于标签生成 4 种风格图）
+  // 2. 图生图 Prompt（Step 3 - 根据标签生成电影级角色场景）
   // ═══════════════════════════════════════════════════════════════════════════
-  // 📝 改动说明：
-  // - 新增：要求先输出 "image_understanding" 分析原图内容
-  // - 目的：确保 AI 真正理解了原图，生成的 prompt 才能保持人物一致性
-  // ═══════════════════════════════════════════════════════════════════════════
-  // ═══════════════════════════════════════════════════════════════════════════
-  // 📝 imageToImage Prompt 改动说明（2026-02-02 更新）：
-  // - 🔴 强化：新增 "CRITICAL: IDENTITY PRESERVATION" 专门章节
-  // - 🔴 强化：要求提取并描述 5 个面部特征锚点（face shape, eyes, nose, lips, skin）
-  // - 🔴 强化：每个 prompt 必须以 "same person as reference" 开头
-  // - 🔴 强化：新增 identity_anchors 输出字段
-  // - 目的：确保生成的 4 张图与原图是同一个人，只做风格迁移
+  // 📝 v0.6 场景化版（2026-02-04 更新）：
+  // - 不只是风格迁移，要和用户选择的角色身份匹配
+  // - 加入视角/角度/构图变化，让图片更有趣
+  // - 保持人物一致性
   // ═══════════════════════════════════════════════════════════════════════════
   imageToImage: {
-    systemPrompt: `# Role
-You are an expert AI Art Director specializing in **identity-preserving style transfer**. Your task is to generate four distinct prompts for an img2img model that applies different visual styles while keeping the EXACT SAME PERSON.
+    systemPrompt: `You are a creative director generating 3 CINEMATIC character portraits.
 
-# ⚠️ CRITICAL: IDENTITY PRESERVATION IS THE #1 PRIORITY
-The generated images MUST look like the SAME PERSON as the original. Style changes are secondary to identity preservation.
+═══ CRITICAL: IDENTITY FIRST ═══
+ALWAYS start with: "exact same person exact same face"
+ALWAYS end with: "preserve facial features"
 
-# Instructions
+═══ YOUR MISSION ═══
+Create 3 EXCITING, DIFFERENT images based on user's character tags.
+NOT just style transfer - create SCENES that match the character's IDENTITY!
 
-## Step 1: Extract Identity Anchors (MOST IMPORTANT)
-Carefully analyze and document these 5 identity-defining features:
-- **Face Shape**: Round/Oval/Square/Heart/Long
-- **Eyes**: Shape, size, spacing, eye color if visible
-- **Nose**: Bridge height, nostril width, tip shape
-- **Lips**: Fullness, shape, cupid's bow
-- **Skin**: Tone, texture, any distinctive marks (moles, freckles)
-- **Distinctive Features**: Dimples, jawline, cheekbones, facial hair
+═══ TAG → SCENE MAPPING ═══
+• Prince/Royalty → throne room, castle balcony, royal garden
+• Vampire → gothic castle, moonlit graveyard, candlelit chamber
+• Demon → hellfire background, dark throne, volcanic lair
+• Angel → clouds, golden light, heavenly gates
+• Assassin → rooftop at night, shadows, rain-soaked alley
+• Knight → battlefield, castle walls, medieval feast
+• Mage/Witch → magical library, enchanted forest, potion room
+• CEO/Mafia-Boss → penthouse office, luxury car, cigar lounge
+• Cyberpunk → neon city streets, holographic displays
+• Gothic → Victorian mansion, candlelight, dark roses
+• Anime → cherry blossoms, school rooftop, sunset
 
-## Step 2: Capture Expression & Pose
-- Current expression (smiling, serious, playful, etc.)
-- Head angle and body pose
-- Hair style and color
+═══ VARY CAMERA ANGLES ═══
+- low angle shot (powerful)
+- close-up portrait (intense)
+- profile view (mysterious)
+- dramatic side lighting (artistic)
 
-## Step 3: Analyze Style Tags
-Understand the mood and visual direction from the user-selected tags.
-
-## Step 4: Create Four Style Variants
-Each prompt MUST:
-- Start with "same person as reference image,"
-- Include ALL identity anchors from Step 1
-- Apply different artistic styles:
-  - **Variant 1 (Photorealistic Enhancement)**: Professional photography, enhanced lighting, same person
-  - **Variant 2 (Artistic Portrait)**: Oil painting/illustration style, preserving exact facial features
-  - **Variant 3 (Cinematic)**: Movie poster aesthetic, dramatic lighting, identical face
-  - **Variant 4 (Stylized)**: Anime/3D/unique style, but recognizably the same person
-
-## Prompt Formula
-[same person as reference image] + [identity anchors] + [style/medium] + [tags integration] + [quality boosters: 8k, highly detailed face, photorealistic skin texture]
-
-# Output Format
-Return a JSON object:
+OUTPUT FORMAT (JSON only):
 {
-  "identity_anchors": {
-    "face_shape": "...",
-    "eyes": "...",
-    "nose": "...",
-    "lips": "...",
-    "skin": "...",
-    "distinctive_features": "..."
-  },
-  "image_understanding": {
-    "subject": "Detailed description including all identity anchors",
-    "expression": "Current facial expression",
-    "pose": "Head angle and body position",
-    "clothing": "What they're wearing",
-    "hair": "Hairstyle and color"
-  },
   "prompts": [
-    "same person as reference image, [identity description], photorealistic portrait...",
-    "same person as reference image, [identity description], oil painting style...",
-    "same person as reference image, [identity description], cinematic lighting...",
-    "same person as reference image, [identity description], stylized 3D render..."
+    "exact same person exact same face, [scene], [angle], [lighting], preserve facial features",
+    "exact same person exact same face, [scene], [angle], [lighting], preserve facial features",
+    "exact same person exact same face, [scene], [angle], [lighting], preserve facial features"
   ],
-  "style_notes": "How each variant preserves identity while changing style"
+  "styleLabels": ["Scene1", "Scene2", "Scene3"]
 }`,
 
     buildPrompt: (imageBase64, selectedTags) => ({
@@ -207,27 +191,13 @@ Return a JSON object:
         },
         {
           role: 'user',
-          content: [
-            {
-              type: 'text',
-              text: `User-Selected Tags: ${JSON.stringify(selectedTags)}
+          content: `Character tags: ${selectedTags.join(', ')}
 
-IMPORTANT: This is an AI character creation tool. The generated images MUST look like the EXACT SAME PERSON as in this reference image. Extract their unique facial features first, then apply different styles while preserving their identity.
-
-Analyze this reference image and generate 4 identity-preserving style prompts:`
-            },
-            {
-              type: 'image_url',
-              image_url: {
-                url: imageBase64,
-                detail: 'high'
-              }
-            }
-          ]
+Create 3 CINEMATIC scenes matching this character. Use different angles and settings. Output JSON only.`
         }
       ],
-      max_tokens: 1500,
-      temperature: 0.7
+      max_tokens: 400,
+      temperature: 0.9
     })
   },
 

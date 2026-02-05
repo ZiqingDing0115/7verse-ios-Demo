@@ -29,7 +29,7 @@ export const aiService = {
       
       const userPrompt = `Tag Library: ${JSON.stringify(tagLibrary)}
 
-Please analyze this image and recommend 7 tags. Output a JSON object with image_analysis, recommended_tags, and tag_reasoning.`;
+Please analyze this image and recommend 7 tags. Output a JSON object with image_analysis and recommended_tags.`;
 
       const fullPrompt = systemPrompt + '\n\n' + userPrompt;
       
@@ -64,22 +64,28 @@ Please analyze this image and recommend 7 tags. Output a JSON object with image_
             console.log('   🎨 风格:', response.image_analysis.style || '-');
           }
           
-          const tags = response.recommended_tags || response.tags || [];
+          // 支持新格式（persona + relationship 分开）和旧格式（combined）
+          const personaTags = response.recommended_persona_tags || response.recommended_tags || response.tags || [];
+          const relationshipTag = response.recommended_relationship || null;
+          
+          // 合并所有标签用于向后兼容
+          const allTags = relationshipTag ? [...personaTags, relationshipTag] : personaTags;
+          
           console.log('');
-          console.log('🏷️ 推荐标签:', tags.join(', '));
-          
-          if (response.tag_reasoning) {
-            console.log('💭 推荐理由:', response.tag_reasoning);
+          console.log('🎭 推荐 Persona 标签:', personaTags.join(', '));
+          if (relationshipTag) {
+            console.log('💕 推荐 Relationship:', relationshipTag);
           }
-          
           console.log('⏱️ 耗时:', result.duration);
+          console.log('📌 注意：AI 推荐但不自动选中，用户需手动点击');
           console.log(LOG_DIVIDER);
           
           return {
             success: true,
-            tags,
+            tags: allTags,  // 向后兼容
+            personaTags,    // 新字段
+            relationshipTag, // 新字段
             imageAnalysis: response.image_analysis,
-            reasoning: response.tag_reasoning,
             duration: result.duration,
             method: 'gemini',
           };
@@ -98,133 +104,157 @@ Please analyze this image and recommend 7 tags. Output a JSON object with image_
   },
 
   // ═══════════════════════════════════════════════════════════════════════════
-  // 2. 生成图生图 Prompts（Step 3 - 生成 4 个风格化 prompts）
+  // 2. 生成图生图 Prompts（Step 3 - 根据标签动态生成 3 个风格 prompts）
+  // 📝 调用 Gemini 根据用户标签生成个性化风格 prompt
+  // 📝 Prompt 要求极短（5-10 词），适配 Flux 小模型两步推理
   // ═══════════════════════════════════════════════════════════════════════════
   async generateImagePrompts(imageBase64, selectedTags) {
-    console.log('🎨 生成图生图 Prompts（身份保持优先）...', { selectedTags });
-
-    if (!USE_AI_FOR_PROMPTS) {
-      return this.generatePromptsLocally(selectedTags);
+    const { ACTIVE_VERSION } = await import('../config/image-prompt-versions.js');
+    
+    console.log(LOG_DIVIDER);
+    console.log(`🎨 STEP 3A: 图生图 Prompt 生成`);
+    console.log(`📌 方案版本: ${ACTIVE_VERSION}`);
+    console.log(`🏷️ 收到用户标签 (${selectedTags?.length || 0} 个):`);
+    if (selectedTags && selectedTags.length > 0) {
+      selectedTags.forEach((tag, i) => console.log(`   ${i + 1}. ${tag}`));
+    } else {
+      console.log(`   ⚠️ 无标签！将使用默认风格`);
     }
+    console.log(LOG_DIVIDER);
 
-    try {
-      const systemPrompt = AI_PROMPTS.imageToImage.systemPrompt;
-      
-      // 🔴 更新：强调身份保持的重要性
-      const userPrompt = `User-Selected Tags: ${JSON.stringify(selectedTags)}
+    // v0.6: 场景化版 - 角色身份映射 + 视角变化 + 随机构图
+    if ((ACTIVE_VERSION === 'v0.5' || ACTIVE_VERSION === 'v0.6') && USE_AI_FOR_PROMPTS && selectedTags.length > 0) {
+      try {
+        const systemPrompt = `You are a creative director generating 3 CINEMATIC character portraits.
 
-IMPORTANT: This is an AI character creation tool. The generated images MUST look like the EXACT SAME PERSON as in this reference image. Extract their unique facial features first, then apply different styles while preserving their identity.
+═══ CRITICAL: IDENTITY FIRST ═══
+ALWAYS start with: "exact same person exact same face"
+ALWAYS end with: "preserve facial features"
 
-Analyze this reference image and generate 4 identity-preserving style prompts. Output JSON with identity_anchors, image_understanding, prompts array, and style_notes.`;
+═══ YOUR MISSION ═══
+Create 3 EXCITING, DIFFERENT images based on user's character tags.
+NOT just style transfer - create SCENES that match the character's IDENTITY!
 
-      const fullPrompt = systemPrompt + '\n\n' + userPrompt;
-      
-      const result = await callGeminiAPI(fullPrompt, imageBase64);
+═══ TAG → SCENE MAPPING (BE CREATIVE!) ═══
+• Prince/Royalty → throne room, castle balcony, royal garden, coronation
+• Vampire → gothic castle, moonlit graveyard, candlelit chamber
+• Demon → hellfire background, dark throne, volcanic lair
+• Angel → clouds, golden light, heavenly gates
+• Assassin → rooftop at night, shadows, rain-soaked alley
+• Knight → battlefield, castle walls, training grounds
+• Mage/Witch → magical library, enchanted forest, potion room
+• CEO/Mafia-Boss → penthouse office, luxury car, private jet
+• Cyberpunk → neon city, holographic displays, futuristic street
+• Gothic → Victorian mansion, candlelight, dark roses
+• Anime → cherry blossoms, school rooftop, sunset
 
-      if (result.success) {
-        try {
+═══ VARY THE CAMERA ANGLES ═══
+Use DIFFERENT perspectives for each image:
+- "low angle shot" (powerful, heroic)
+- "high angle shot" (vulnerable, intimate)
+- "close-up portrait" (emotional, intense)
+- "profile view" (mysterious, cinematic)
+- "three-quarter view" (classic, flattering)
+- "dramatic side lighting" (moody, artistic)
+
+═══ PROMPT FORMAT ═══
+"exact same person exact same face, [SCENE/SETTING], [CAMERA ANGLE], [LIGHTING], preserve facial features"
+
+═══ EXAMPLES ═══
+Tags: Prince, Gothic
+✅ "exact same person exact same face, dark throne room, low angle shot, dramatic candlelight, preserve facial features"
+✅ "exact same person exact same face, castle balcony at night, profile view, moonlight, preserve facial features"
+✅ "exact same person exact same face, royal garden, close-up portrait, golden hour, preserve facial features"
+
+═══ OUTPUT (JSON only) ═══
+{
+  "prompts": ["prompt1", "prompt2", "prompt3"],
+  "styleLabels": ["Scene1", "Scene2", "Scene3"]
+}`;
+
+        // 添加随机数确保每次生成不同结果
+        const randomSeed = Math.floor(Math.random() * 10000);
+        const angles = ['low angle shot', 'high angle shot', 'close-up portrait', 'profile view', 'three-quarter view', 'dramatic side lighting'];
+        const randomAngles = angles.sort(() => Math.random() - 0.5).slice(0, 3);
+        
+        const userPrompt = `═══ CHARACTER TAGS ═══
+${selectedTags.map((tag, i) => `${i + 1}. ${tag}`).join('\n')}
+
+═══ CREATIVE SEED: ${randomSeed} ═══
+═══ SUGGESTED ANGLES: ${randomAngles.join(', ')} ═══
+
+🎬 Create 3 CINEMATIC scenes that bring this character to LIFE!
+- Each image should tell a STORY matching their identity
+- Use DIFFERENT camera angles and settings
+- Make it EXCITING, not boring!
+- Keep prompts SHORT (under 20 words)
+
+Output JSON only.`;
+
+        const result = await callGeminiAPI(systemPrompt + '\n\n' + userPrompt);
+
+        if (result.success) {
           let jsonText = result.text.trim();
           if (jsonText.startsWith('```')) {
             jsonText = jsonText.replace(/```json?\n?/g, '').replace(/```/g, '').trim();
           }
           
-          // 尝试找到 JSON 对象
           const jsonMatch = jsonText.match(/\{[\s\S]*\}/);
           if (jsonMatch) {
             jsonText = jsonMatch[0];
           }
           
           const response = JSON.parse(jsonText);
-          
-          // 🎯 在控制台美化输出
-          console.log(LOG_DIVIDER);
-          console.log('🖼️ STEP 3A: Gemini 图片理解 & 身份保持 Prompts');
-          console.log(LOG_DIVIDER);
-          
-          // 🔴 新增：显示身份锚点
-          if (response.identity_anchors) {
-            console.log('🔒 身份锚点（Identity Anchors）:');
-            console.log('   👤 脸型:', response.identity_anchors.face_shape || '-');
-            console.log('   👁️ 眼睛:', response.identity_anchors.eyes || '-');
-            console.log('   👃 鼻子:', response.identity_anchors.nose || '-');
-            console.log('   👄 嘴唇:', response.identity_anchors.lips || '-');
-            console.log('   🎨 肤色:', response.identity_anchors.skin || '-');
-            console.log('   ✨ 特征:', response.identity_anchors.distinctive_features || '-');
-            console.log('');
-          }
-          
-          if (response.image_understanding) {
-            console.log('📸 原图理解:');
-            console.log('   👤 主体:', response.image_understanding.subject || '-');
-            console.log('   😊 表情:', response.image_understanding.expression || '-');
-            console.log('   💇 发型:', response.image_understanding.hair || '-');
-            console.log('   👔 服装:', response.image_understanding.clothing || '-');
-            console.log('   🧍 姿势:', response.image_understanding.pose || '-');
-          }
-          
           const prompts = response.prompts || [];
+          const styleLabels = response.styleLabels || ['Style 1', 'Style 2', 'Style 3'];
+
           console.log('');
-          console.log('✨ 生成的 4 个身份保持 Prompts:');
+          console.log('🤖 ═══ AI 生成的动态 Prompts（可复制）═══');
+          console.log('📷 图 1: 原图（保留）');
           prompts.forEach((p, i) => {
-            const labels = ['写实增强', '艺术肖像', '电影风格', '风格化'];
-            console.log(`   ${i + 1}. [${labels[i] || '风格' + (i+1)}]`);
-            console.log(`      ${p.substring(0, 120)}...`);
+            console.log(`🎨 图 ${i + 2} [${styleLabels[i]}]: ${p}`);
           });
-          
-          if (response.style_notes) {
-            console.log('');
-            console.log('💭 风格说明:', response.style_notes);
-          }
-          
-          console.log('⏱️ 耗时:', result.duration);
-          console.log(LOG_DIVIDER);
-          
-          if (Array.isArray(prompts) && prompts.length >= 4) {
-            return {
-              success: true,
-              prompts: prompts.slice(0, 4),
-              identityAnchors: response.identity_anchors,
-              imageUnderstanding: response.image_understanding,
-              styleNotes: response.style_notes,
-              duration: result.duration,
-              method: 'gemini',
-            };
-          } else {
-            throw new Error('Gemini 返回的 prompts 数量不足');
-          }
-        } catch (e) {
-          console.error('❌ 解析 Prompts JSON 失败:', e, '原始响应:', result.text);
-          return this.generatePromptsLocally(selectedTags);
+          console.log('═══════════════════════════════════════════');
+          console.log('');
+
+          return {
+            success: true,
+            isCombined: false,
+            prompts: prompts,
+            version: 'v0.5',
+            versionName: '动态标签版',
+            styleLabels: styleLabels,
+            duration: result.duration || '0.0s',
+            method: 'ai_dynamic',
+          };
         }
+      } catch (error) {
+        console.warn('⚠️ AI 生成失败，回退到固定版本:', error.message);
       }
-
-      console.warn('⚠️ Gemini 调用失败，使用本地逻辑:', result.error);
-      return this.generatePromptsLocally(selectedTags);
-    } catch (error) {
-      console.error('❌ 生成 Prompts 异常:', error);
-      return this.generatePromptsLocally(selectedTags);
     }
-  },
 
-  // 本地生成 Prompts（备用方案，不需要 AI）
-  generatePromptsLocally(selectedTags) {
-    console.log('🔧 使用本地逻辑生成 Prompts（备用方案）');
+    // 回退：使用版本管理系统的固定 Prompt
+    const { getActivePrompts } = await import('../config/image-prompt-versions.js');
+    const activeConfig = getActivePrompts(selectedTags);
     
-    const tagsText = selectedTags.join(', ');
-    
-    const prompts = [
-      `A photorealistic portrait with ${tagsText} style, professional photography, natural lighting, highly detailed, 8k resolution, sharp focus, masterpiece quality`,
-      `An artistic illustration with ${tagsText} aesthetic, painted style, vibrant colors, expressive brushstrokes, creative composition, trending on artstation`,
-      `A cinematic shot with ${tagsText} atmosphere, dramatic lighting, shallow depth of field, film grain, moody color grading, professional cinematography`,
-      `A stylized digital art with ${tagsText} vibe, creative interpretation, unique artistic style, bold colors, award-winning design, highly creative`,
-    ];
+    console.log('📦 使用固定版本 Prompts:');
+    console.log('   📷 图 1: 原图（保留）');
+    const prompts = activeConfig.prompts || [];
+    prompts.forEach((p, i) => {
+      const label = activeConfig.styleLabels?.[i] || `风格${i + 1}`;
+      console.log(`   🎨 图 ${i + 2}: [${label}] ${p}`);
+    });
+    console.log(LOG_DIVIDER);
 
     return {
       success: true,
-      prompts,
+      isCombined: false,
+      prompts: prompts,
+      version: activeConfig.version || 'v0.4',
+      versionName: activeConfig.name || '固定版',
+      styleLabels: activeConfig.styleLabels,
       duration: '0.0s',
-      method: 'local_template',
-      message: '使用本地模板生成（备用方案）',
+      method: 'version_managed',
     };
   },
 

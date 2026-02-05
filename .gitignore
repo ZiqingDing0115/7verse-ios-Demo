@@ -43,6 +43,12 @@ step2-theme-playground.html
 api-test.html
 public/api-test.html
 
+# 个人工具（已移至 7verse-tools 独立仓库）
+public/model-arena.html
+public/prompt-arena.html
+public/prompt-tester.html
+public/tag-collector.html
+
 # Development documentation (内部文档)
 API策略说明-稳定优先版.md
 API配置说明.md

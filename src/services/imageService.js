@@ -1,6 +1,7 @@
 import { callFluxAPI } from '../config/api';
 
 // 图生图服务 - 使用 Flux API（flux2.vivix.work）
+// 更新：使用 seed 保持 ID 一致性，auto_size 自适应尺寸
 export const imageService = {
   
   // 调用 Flux API 生成图片
@@ -9,6 +10,7 @@ export const imageService = {
     const startTime = performance.now();
     
     const prompts = promptConfig.prompts || [];
+    const styleLabels = promptConfig.styleLabels || [];
     
     console.log('🚀 开始调用 Flux 图生图 API...');
     console.log(`📝 共 ${prompts.length} 个风格需要生成`);
@@ -23,6 +25,10 @@ export const imageService = {
       }
       
       console.log('🖼️ 使用用户上传的 base64 图片');
+      
+      // ===== 生成统一 seed，保持所有图片的 ID 一致性 =====
+      const baseSeed = Math.floor(Math.random() * 1000000);
+      console.log(`🎲 Base Seed: ${baseSeed} (用于保持 ID 一致性)`);
       
       const results = [];
       
@@ -47,23 +53,31 @@ export const imageService = {
       for (let i = 0; i < prompts.length; i++) {
         const promptItem = prompts[i];
         const promptText = promptItem.prompt || promptItem;
-        const styleLabel = promptItem.style || `Style ${i + 1}`;
+        const styleLabel = styleLabels[i] || promptItem.style || `Style ${i + 1}`;
         
         console.log(`🎨 生成图片 ${i + 2}/${prompts.length + 1}: ${styleLabel}`);
         console.log(`   Prompt: ${promptText.substring(0, 60)}...`);
         
-        const result = await callFluxAPI(promptText, imageBase64, 1024, 1024);
+        // 使用统一的 base seed 保持 ID 一致性
+        // 每个风格用 seed + i 确保不同但相关
+        const result = await callFluxAPI(promptText, imageBase64, {
+          seed: baseSeed,  // 使用相同 seed 保持 ID
+          autoSize: true,   // 自动尺寸
+        });
         
         if (result.success && result.imageBase64) {
           console.log(`✅ 图片 ${i + 2} 生成成功，耗时: ${result.duration}`);
           const generatedImage = {
             id: i + 2,
-            url: result.imageBase64,  // Flux 返回 base64
+            url: result.imageBase64,  // Flux 返回 base64 或 URL
+            imageUrl: result.imageUrl,  // 完整 URL（如果有）
             prompt: promptText,
             duration: result.duration,
             type: 'generated',
             style: styleLabel,
             label: styleLabel,
+            seed: result.seed,
+            jobId: result.jobId,
           };
           results.push(generatedImage);
           
@@ -79,6 +93,8 @@ export const imageService = {
             prompt: promptText,
             error: result.error || '生成失败',
             type: 'error',
+            style: styleLabel,
+            label: styleLabel,
           };
           results.push(errorImage);
           
@@ -109,6 +125,7 @@ export const imageService = {
         totalCount: prompts.length + 1,
         originalCount: 1,
         generatedCount: prompts.length,
+        baseSeed: baseSeed,  // 返回使用的 seed
         isMock: false,
         modelId: 'flux-vivix',
       };

@@ -196,20 +196,39 @@ export async function uploadImageToImgbb(base64Data) {
 // ============================================================================
 // Flux API - 图生图（flux2.vivix.work）
 // ============================================================================
-export async function callFluxAPI(prompt, imageBase64, width = 1024, height = 1024) {
+// 更新：使用 seed 保持 ID 一致性，auto_size 自适应尺寸
+// ============================================================================
+export async function callFluxAPI(prompt, imageBase64, options = {}) {
   const startTime = performance.now();
   
+  const {
+    seed = null,           // 使用相同 seed 保持基础一致性（ID 保持）
+    autoSize = true,       // 自动尺寸
+    width = 1024,
+    height = 1024,
+  } = options;
+  
+  // 生成随机 seed（如果未指定）
+  const useSeed = seed ?? Math.floor(Math.random() * 1000000);
+  
   console.log('🎨 调用 Flux 图生图 API...');
-  console.log(`📝 Prompt: ${prompt.substring(0, 50)}...`);
-  console.log(`📐 尺寸: ${width}x${height}`);
+  console.log(`📝 Prompt: ${prompt.substring(0, 60)}...`);
+  console.log(`🎲 Seed: ${useSeed}${seed ? ' (固定)' : ' (随机)'}`);
+  console.log(`📐 尺寸: ${autoSize ? '自适应' : `${width}x${height}`}`);
   
   try {
     const requestBody = {
       prompt: prompt,
-      image: imageBase64,  // data:image/jpeg;base64,xxx 格式
-      width: width,
-      height: height,
+      image: imageBase64,  // data:image/xxx;base64,xxx 格式
+      seed: useSeed,
+      auto_size: autoSize,
     };
+    
+    // 如果不使用自动尺寸，添加固定尺寸
+    if (!autoSize) {
+      requestBody.width = width;
+      requestBody.height = height;
+    }
     
     // 使用 Vite 代理解决 CORS 问题
     const response = await fetch('/api/flux/generate', {
@@ -218,6 +237,7 @@ export async function callFluxAPI(prompt, imageBase64, width = 1024, height = 10
         'Content-Type': 'application/json',
       },
       body: JSON.stringify(requestBody),
+      timeout: 120000,  // 2 分钟超时
     });
     
     const result = await response.json();
@@ -225,21 +245,36 @@ export async function callFluxAPI(prompt, imageBase64, width = 1024, height = 10
     
     console.log('📨 Flux 响应:', response.status, result.success ? '成功' : '失败');
     
-    if (result.success && result.image_base64) {
-      console.log(`✅ Flux 图生图成功，耗时: ${duration}s`);
-      return {
-        success: true,
-        imageBase64: result.image_base64,  // 返回 base64 图片
-        duration: duration + 's',
-      };
-    } else {
-      console.error('❌ Flux API 失败:', result);
-      return {
-        success: false,
-        error: result.error || result.message || '未知错误',
-        duration: duration + 's',
-      };
+    // 支持两种返回格式：image_base64 或 image_url
+    if (result.success) {
+      let imageData = result.image_base64;
+      
+      // 如果返回的是 URL，需要获取完整地址
+      if (!imageData && result.image_url) {
+        const fullUrl = `https://flux2.vivix.work${result.image_url}`;
+        console.log(`🔗 图片 URL: ${fullUrl}`);
+        imageData = fullUrl;  // 返回 URL
+      }
+      
+      if (imageData) {
+        console.log(`✅ Flux 图生图成功，耗时: ${duration}s, job_id: ${result.job_id || '-'}`);
+        return {
+          success: true,
+          imageBase64: imageData,  // 可能是 base64 或 URL
+          imageUrl: result.image_url ? `https://flux2.vivix.work${result.image_url}` : null,
+          jobId: result.job_id,
+          seed: useSeed,
+          duration: duration + 's',
+        };
+      }
     }
+    
+    console.error('❌ Flux API 失败:', result);
+    return {
+      success: false,
+      error: result.error || result.message || '未知错误',
+      duration: duration + 's',
+    };
   } catch (error) {
     console.error('❌ Flux API 异常:', error);
     return {

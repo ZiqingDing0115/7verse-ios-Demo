@@ -198,11 +198,11 @@
 
 | 配置项 | 值 |
 |--------|-----|
-| Endpoint | `https://flux2.vivix.work/generate` |
+| Endpoint | `https://flux2.vivix.work/api/generate` |
 | 代理路径 | `/api/flux/generate` |
 | Method | POST |
 | Content-Type | application/json |
-| Timeout | 60000ms |
+| Timeout | 120000ms |
 
 #### 请求参数
 
@@ -210,8 +210,8 @@
 {
   "prompt": "exact same person exact same face, gothic castle, low angle shot, dramatic lighting, preserve facial features",
   "image": "data:image/jpeg;base64,/9j/4AAQ...",  // 完整 data URI
-  "width": 1024,
-  "height": 1024
+  "seed": 42,           // 可选：固定 seed 保持 ID 一致性
+  "auto_size": true     // 推荐：自动适应原图尺寸
 }
 ```
 
@@ -220,7 +220,9 @@
 ```json
 {
   "success": true,
-  "image_base64": "data:image/png;base64,iVBORw0...",  // 生成的图片
+  "image_base64": "data:image/png;base64,iVBORw0...",  // 生成的图片（base64）
+  "image_url": "/output/xxx.png",   // 或返回图片 URL
+  "job_id": "abc123",               // 任务 ID
   "error": null
 }
 ```
@@ -228,7 +230,9 @@
 #### 注意事项
 
 - 输入图片必须是完整的 `data:image/xxx;base64,xxx` 格式
-- 返回图片也是 base64 格式，前端可直接用于 `<img src="">`
+- 返回可能是 `image_base64`（base64）或 `image_url`（需拼接域名）
+- 使用相同 `seed` 可保持生成图片的 ID 一致性（面部特征）
+- `auto_size: true` 会自动适应原图尺寸，推荐使用
 - 建议 Prompt 长度控制在 50 词以内，Flux 对短 Prompt 效果更好
 
 ---

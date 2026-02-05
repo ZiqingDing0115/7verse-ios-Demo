@@ -49,7 +49,7 @@ public/prompt-arena.html
 public/prompt-tester.html
 public/tag-collector.html
 
-# Development documentation (内部文档)
+# Development documentation (内部文档/过程记录)
 API策略说明-稳定优先版.md
 API配置说明.md
 Prompt版本管理和测试记录.md
@@ -57,6 +57,13 @@ README-测试指南.md
 后端架构设计.md
 新后端架构设计-Prompt优化版.md
 图生图模型评测表.md
+TEST-URL.md
+
+# docs 内部文档（已移至 7verse-tools）
+docs/DATA-LIBRARY-GUIDE.md
+docs/IMAGE-GENERATION-TEST-LOG.md
+docs/IMAGE-PROMPT-BEST-PRACTICES.md
+docs/PROMPTS-GUIDE.md
 
 # Cursor plans
 .cursor/

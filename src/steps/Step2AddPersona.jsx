@@ -297,7 +297,7 @@ const Step2AddPersona = () => {
         onClick={() => togglePersonaTag(tag.id)}
         className={`px-4 py-2.5 rounded-full text-sm font-medium transition-all flex items-center gap-2 ${
           isSelected
-            ? 'bg-white text-gray-900 shadow-lg scale-105'
+            ? 'bg-white text-gray-900 shadow-md ring-2 ring-white/50'
             : isRecommended
               ? 'bg-gray-700 text-white/90 hover:bg-gray-600 ring-2 ring-emerald-400/60'
               : 'bg-gray-800 text-white/80 hover:bg-gray-700 border border-gray-700'
@@ -327,7 +327,7 @@ const Step2AddPersona = () => {
         onClick={() => selectRelationship(tag.id)}
         className={`px-4 py-2.5 rounded-full text-sm font-medium transition-all flex items-center gap-2 ${
           isSelected
-            ? 'bg-gradient-to-r from-purple-500 to-pink-500 text-white shadow-lg scale-105'
+            ? 'bg-gradient-to-r from-purple-500 to-pink-500 text-white shadow-md ring-2 ring-pink-300/50'
             : isRecommended
               ? 'bg-gray-700 text-white/90 hover:bg-gray-600 ring-2 ring-emerald-400/60'
               : 'bg-gray-800 text-white/80 hover:bg-gray-700 border border-gray-700'

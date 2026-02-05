@@ -1,23 +1,35 @@
-// AI 服务 - 使用 Gemini 3.0 Flash 生成 Prompts
-// 📅 最后更新：2026-02-02
-// 📝 功能：调用 Gemini API，解析响应，在控制台展示 AI 分析过程
+// AI 服务 - 使用 Qwen 235B 生成 Prompts
+// 📅 最后更新：2026-02-05
+// 📝 功能：调用 Qwen API 进行标签推荐、Prompt 生成等
 
-import { callGeminiAPI } from '../config/api';
+import { callQwenAPI } from '../config/api';
 import { AI_PROMPTS } from '../config/prompts-library';
 
-// 是否使用 AI（Gemini）生成 Prompts，设为 false 则使用本地模板
+// 是否使用 AI 生成 Prompts，设为 false 则使用本地模板
 const USE_AI_FOR_PROMPTS = true;
 
 // 控制台输出样式
 const LOG_DIVIDER = '═══════════════════════════════════════════════════════════════';
 
+// 解析 Qwen 响应（去掉 <think> 标签，提取 JSON）
+const parseQwenResponse = (text) => {
+  // 去掉 <think>...</think> 标签
+  let cleanText = text.replace(/<think>[\s\S]*?<\/think>/g, '').trim();
+  // 提取 JSON
+  const jsonMatch = cleanText.match(/\{[\s\S]*\}/);
+  if (jsonMatch) {
+    return JSON.parse(jsonMatch[0]);
+  }
+  throw new Error('未找到有效 JSON');
+};
+
 // AI 服务对象
 export const aiService = {
   // ═══════════════════════════════════════════════════════════════════════════
-  // 1. 推荐标签（Step 2 - 分析图片推荐 7 个标签）
+  // 1. 推荐标签（Step 2 - 分析描述推荐 7 个标签）
   // ═══════════════════════════════════════════════════════════════════════════
   async recommendTags(imageBase64) {
-    console.log('🎨 开始推荐标签...');
+    console.log('🎨 开始推荐标签（使用 Qwen 235B）...');
 
     if (!USE_AI_FOR_PROMPTS) {
       return this.mockRecommendTags();
@@ -25,53 +37,54 @@ export const aiService = {
 
     try {
       const tagLibrary = AI_PROMPTS.tagRecommendation.tagLibrary;
-      const systemPrompt = AI_PROMPTS.tagRecommendation.systemPrompt;
       
-      const userPrompt = `Tag Library: ${JSON.stringify(tagLibrary)}
+      const messages = [
+        {
+          role: 'system',
+          content: `你是一个 AI 角色创建专家。根据图片特征推荐最适合的角色标签。
 
-Please analyze this image and recommend 7 tags. Output a JSON object with image_analysis and recommended_tags.`;
+规则：
+1. 从标签库中选择 6 个 Persona 标签
+2. 选择 1 个 Relationship 标签
+3. 标签要有趣、有创意，不要太无聊
+4. 直接输出 JSON，不要解释
 
-      const fullPrompt = systemPrompt + '\n\n' + userPrompt;
+输出格式：
+{
+  "image_analysis": {"subject": "描述", "style": "风格"},
+  "recommended_persona_tags": ["tag1", "tag2", "tag3", "tag4", "tag5", "tag6"],
+  "recommended_relationship": "relationship_tag"
+}
+
+可用标签库（前 60 个）：${tagLibrary.slice(0, 60).join(', ')}`
+        },
+        {
+          role: 'user',
+          content: '请为这个角色推荐标签。这是一个有魅力、神秘感的人物。'
+        }
+      ];
       
-      const result = await callGeminiAPI(fullPrompt, imageBase64);
+      const result = await callQwenAPI(messages, {
+        stream: false,
+        maxTokens: 300,
+        temperature: 0.8,
+      });
 
       if (result.success) {
         try {
-          // 清理响应，提取 JSON
-          let jsonText = result.text.trim();
-          if (jsonText.startsWith('```')) {
-            jsonText = jsonText.replace(/```json?\n?/g, '').replace(/```/g, '').trim();
-          }
-          
-          // 尝试找到 JSON 对象
-          const jsonMatch = jsonText.match(/\{[\s\S]*\}/);
-          if (jsonMatch) {
-            jsonText = jsonMatch[0];
-          }
-          
-          const response = JSON.parse(jsonText);
-          
-          // 🎯 在控制台美化输出分析结果
-          console.log(LOG_DIVIDER);
-          console.log('👁️ STEP 2: Gemini 图片分析 & 标签推荐');
-          console.log(LOG_DIVIDER);
-          
-          if (response.image_analysis) {
-            console.log('📸 图片分析:');
-            console.log('   👤 主体:', response.image_analysis.subject || '-');
-            console.log('   💡 光线:', response.image_analysis.lighting || '-');
-            console.log('   🌈 氛围:', response.image_analysis.mood || '-');
-            console.log('   🎨 风格:', response.image_analysis.style || '-');
-          }
+          const response = parseQwenResponse(result.text);
           
           // 支持新格式（persona + relationship 分开）和旧格式（combined）
-          const personaTags = response.recommended_persona_tags || response.recommended_tags || response.tags || [];
+          const personaTags = response.recommended_persona_tags || response.recommended_tags || [];
           const relationshipTag = response.recommended_relationship || null;
           
           // 合并所有标签用于向后兼容
           const allTags = relationshipTag ? [...personaTags, relationshipTag] : personaTags;
           
           console.log('');
+          console.log(LOG_DIVIDER);
+          console.log('🤖 STEP 2: Qwen 标签推荐');
+          console.log(LOG_DIVIDER);
           console.log('🎭 推荐 Persona 标签:', personaTags.join(', '));
           if (relationshipTag) {
             console.log('💕 推荐 Relationship:', relationshipTag);
@@ -82,12 +95,12 @@ Please analyze this image and recommend 7 tags. Output a JSON object with image_
           
           return {
             success: true,
-            tags: allTags,  // 向后兼容
-            personaTags,    // 新字段
-            relationshipTag, // 新字段
+            tags: allTags,
+            personaTags,
+            relationshipTag,
             imageAnalysis: response.image_analysis,
             duration: result.duration,
-            method: 'gemini',
+            method: 'qwen',
           };
         } catch (e) {
           console.error('❌ 解析标签 JSON 失败:', e, '原始响应:', result.text);
@@ -95,7 +108,7 @@ Please analyze this image and recommend 7 tags. Output a JSON object with image_
         }
       }
 
-      console.warn('⚠️ Gemini 调用失败，使用本地逻辑:', result.error);
+      console.warn('⚠️ Qwen 调用失败，使用本地逻辑:', result.error);
       return this.mockRecommendTags();
     } catch (error) {
       console.error('❌ 推荐标签异常:', error);
@@ -105,14 +118,12 @@ Please analyze this image and recommend 7 tags. Output a JSON object with image_
 
   // ═══════════════════════════════════════════════════════════════════════════
   // 2. 生成图生图 Prompts（Step 3 - 根据标签动态生成 3 个风格 prompts）
-  // 📝 调用 Gemini 根据用户标签生成个性化风格 prompt
-  // 📝 Prompt 要求极短（5-10 词），适配 Flux 小模型两步推理
   // ═══════════════════════════════════════════════════════════════════════════
   async generateImagePrompts(imageBase64, selectedTags) {
     const { ACTIVE_VERSION } = await import('../config/image-prompt-versions.js');
     
     console.log(LOG_DIVIDER);
-    console.log(`🎨 STEP 3A: 图生图 Prompt 生成`);
+    console.log(`🎨 STEP 3A: 图生图 Prompt 生成（Qwen 235B）`);
     console.log(`📌 方案版本: ${ACTIVE_VERSION}`);
     console.log(`🏷️ 收到用户标签 (${selectedTags?.length || 0} 个):`);
     if (selectedTags && selectedTags.length > 0) {
@@ -122,94 +133,55 @@ Please analyze this image and recommend 7 tags. Output a JSON object with image_
     }
     console.log(LOG_DIVIDER);
 
-    // v0.6: 场景化版 - 角色身份映射 + 视角变化 + 随机构图
-    if ((ACTIVE_VERSION === 'v0.5' || ACTIVE_VERSION === 'v0.6') && USE_AI_FOR_PROMPTS && selectedTags.length > 0) {
+    if (USE_AI_FOR_PROMPTS && selectedTags.length > 0) {
       try {
-        const systemPrompt = `You are a creative director generating 3 CINEMATIC character portraits.
+        // 添加随机数确保每次生成不同结果
+        const randomSeed = Math.floor(Math.random() * 10000);
+        const angles = ['low angle shot', 'high angle shot', 'close-up portrait', 'profile view', 'three-quarter view'];
+        const randomAngles = angles.sort(() => Math.random() - 0.5).slice(0, 3);
+        
+        const messages = [
+          {
+            role: 'system',
+            content: `你是一个电影级角色摄影导演。根据用户的角色标签，生成 3 个不同场景的图片 Prompt。
 
-═══ CRITICAL: IDENTITY FIRST ═══
-ALWAYS start with: "exact same person exact same face"
-ALWAYS end with: "preserve facial features"
+规则：
+1. 每个 Prompt 必须以 "exact same person exact same face" 开头
+2. 每个 Prompt 必须以 "preserve facial features" 结尾
+3. 每个场景要匹配角色身份（如 Prince → 王座、Vampire → 城堡）
+4. 使用不同的相机角度
+5. Prompt 要简短（15-25 词）
+6. 直接输出 JSON，不要思考过程
 
-═══ YOUR MISSION ═══
-Create 3 EXCITING, DIFFERENT images based on user's character tags.
-NOT just style transfer - create SCENES that match the character's IDENTITY!
-
-═══ TAG → SCENE MAPPING (BE CREATIVE!) ═══
-• Prince/Royalty → throne room, castle balcony, royal garden, coronation
-• Vampire → gothic castle, moonlit graveyard, candlelit chamber
-• Demon → hellfire background, dark throne, volcanic lair
-• Angel → clouds, golden light, heavenly gates
-• Assassin → rooftop at night, shadows, rain-soaked alley
-• Knight → battlefield, castle walls, training grounds
-• Mage/Witch → magical library, enchanted forest, potion room
-• CEO/Mafia-Boss → penthouse office, luxury car, private jet
-• Cyberpunk → neon city, holographic displays, futuristic street
-• Gothic → Victorian mansion, candlelight, dark roses
-• Anime → cherry blossoms, school rooftop, sunset
-
-═══ VARY THE CAMERA ANGLES ═══
-Use DIFFERENT perspectives for each image:
-- "low angle shot" (powerful, heroic)
-- "high angle shot" (vulnerable, intimate)
-- "close-up portrait" (emotional, intense)
-- "profile view" (mysterious, cinematic)
-- "three-quarter view" (classic, flattering)
-- "dramatic side lighting" (moody, artistic)
-
-═══ PROMPT FORMAT ═══
-"exact same person exact same face, [SCENE/SETTING], [CAMERA ANGLE], [LIGHTING], preserve facial features"
-
-═══ EXAMPLES ═══
-Tags: Prince, Gothic
-✅ "exact same person exact same face, dark throne room, low angle shot, dramatic candlelight, preserve facial features"
-✅ "exact same person exact same face, castle balcony at night, profile view, moonlight, preserve facial features"
-✅ "exact same person exact same face, royal garden, close-up portrait, golden hour, preserve facial features"
-
-═══ OUTPUT (JSON only) ═══
+输出格式：
 {
   "prompts": ["prompt1", "prompt2", "prompt3"],
   "styleLabels": ["Scene1", "Scene2", "Scene3"]
-}`;
+}`
+          },
+          {
+            role: 'user',
+            content: `角色标签：${selectedTags.join(', ')}
+建议角度：${randomAngles.join(', ')}
+随机种子：${randomSeed}
 
-        // 添加随机数确保每次生成不同结果
-        const randomSeed = Math.floor(Math.random() * 10000);
-        const angles = ['low angle shot', 'high angle shot', 'close-up portrait', 'profile view', 'three-quarter view', 'dramatic side lighting'];
-        const randomAngles = angles.sort(() => Math.random() - 0.5).slice(0, 3);
-        
-        const userPrompt = `═══ CHARACTER TAGS ═══
-${selectedTags.map((tag, i) => `${i + 1}. ${tag}`).join('\n')}
+生成 3 个电影级场景 Prompt！`
+          }
+        ];
 
-═══ CREATIVE SEED: ${randomSeed} ═══
-═══ SUGGESTED ANGLES: ${randomAngles.join(', ')} ═══
-
-🎬 Create 3 CINEMATIC scenes that bring this character to LIFE!
-- Each image should tell a STORY matching their identity
-- Use DIFFERENT camera angles and settings
-- Make it EXCITING, not boring!
-- Keep prompts SHORT (under 20 words)
-
-Output JSON only.`;
-
-        const result = await callGeminiAPI(systemPrompt + '\n\n' + userPrompt);
+        const result = await callQwenAPI(messages, {
+          stream: false,
+          maxTokens: 400,
+          temperature: 0.9,
+        });
 
         if (result.success) {
-          let jsonText = result.text.trim();
-          if (jsonText.startsWith('```')) {
-            jsonText = jsonText.replace(/```json?\n?/g, '').replace(/```/g, '').trim();
-          }
-          
-          const jsonMatch = jsonText.match(/\{[\s\S]*\}/);
-          if (jsonMatch) {
-            jsonText = jsonMatch[0];
-          }
-          
-          const response = JSON.parse(jsonText);
+          const response = parseQwenResponse(result.text);
           const prompts = response.prompts || [];
           const styleLabels = response.styleLabels || ['Style 1', 'Style 2', 'Style 3'];
 
           console.log('');
-          console.log('🤖 ═══ AI 生成的动态 Prompts（可复制）═══');
+          console.log('🤖 ═══ Qwen 生成的动态 Prompts ═══');
           console.log('📷 图 1: 原图（保留）');
           prompts.forEach((p, i) => {
             console.log(`🎨 图 ${i + 2} [${styleLabels[i]}]: ${p}`);
@@ -221,15 +193,15 @@ Output JSON only.`;
             success: true,
             isCombined: false,
             prompts: prompts,
-            version: 'v0.5',
-            versionName: '动态标签版',
+            version: 'v0.6-qwen',
+            versionName: 'Qwen 动态版',
             styleLabels: styleLabels,
             duration: result.duration || '0.0s',
-            method: 'ai_dynamic',
+            method: 'qwen',
           };
         }
       } catch (error) {
-        console.warn('⚠️ AI 生成失败，回退到固定版本:', error.message);
+        console.warn('⚠️ Qwen 生成失败，回退到固定版本:', error.message);
       }
     }
 
@@ -262,43 +234,64 @@ Output JSON only.`;
   // 3. 推荐音色（Step 3 - 根据图片和标签推荐音色）
   // ═══════════════════════════════════════════════════════════════════════════
   async recommendVoice(imageBase64, selectedTags, voiceLibrary) {
-    console.log('🎙️ 推荐音色...', { selectedTags });
+    console.log('🎙️ 推荐音色（Qwen 235B）...', { selectedTags });
 
     if (!USE_AI_FOR_PROMPTS || !voiceLibrary) {
       return this.mockRecommendVoice();
     }
 
     try {
-      const systemPrompt = AI_PROMPTS.voiceRecommendation.systemPrompt;
+      // 提取音色库的简要信息
+      const voiceSummary = voiceLibrary.slice(0, 30).map(v => ({
+        id: v.id,
+        name: v.name,
+        gender: v.gender,
+        accent: v.accent,
+      }));
       
-      const userPrompt = `User-Selected Tags: ${JSON.stringify(selectedTags)}
+      const messages = [
+        {
+          role: 'system',
+          content: `你是一个音色匹配专家。根据角色标签推荐最合适的音色。
 
-Voice Library: ${JSON.stringify(voiceLibrary)}
+规则：
+1. 分析角色特征（性别、年龄、性格）
+2. 从音色库中选择最匹配的音色 ID
+3. 直接输出 JSON，不要思考过程
 
-Please analyze this character and recommend the best matching voice. Output a JSON object with character_voice_profile, recommended_voice_id, reasoning, and alternative_voice_id.`;
+输出格式：
+{
+  "character_voice_profile": {
+    "perceived_gender": "male/female",
+    "perceived_age": "young/adult/mature",
+    "suggested_tone": "confident/gentle/mysterious"
+  },
+  "recommended_voice_id": "voice_id",
+  "reasoning": "推荐理由（一句话）"
+}`
+        },
+        {
+          role: 'user',
+          content: `角色标签：${selectedTags.join(', ')}
 
-      const fullPrompt = systemPrompt + '\n\n' + userPrompt;
+音色库：${JSON.stringify(voiceSummary)}
+
+推荐最合适的音色！`
+        }
+      ];
       
-      const result = await callGeminiAPI(fullPrompt, imageBase64);
+      const result = await callQwenAPI(messages, {
+        stream: false,
+        maxTokens: 250,
+        temperature: 0.7,
+      });
 
       if (result.success) {
         try {
-          let jsonText = result.text.trim();
-          if (jsonText.startsWith('```')) {
-            jsonText = jsonText.replace(/```json?\n?/g, '').replace(/```/g, '').trim();
-          }
+          const response = parseQwenResponse(result.text);
           
-          // 尝试找到 JSON 对象
-          const jsonMatch = jsonText.match(/\{[\s\S]*\}/);
-          if (jsonMatch) {
-            jsonText = jsonMatch[0];
-          }
-          
-          const response = JSON.parse(jsonText);
-          
-          // 🎯 在控制台美化输出
           console.log(LOG_DIVIDER);
-          console.log('🎙️ STEP 3B: Gemini 角色声音分析 & 音色推荐');
+          console.log('🎙️ STEP 3B: Qwen 音色推荐');
           console.log(LOG_DIVIDER);
           
           if (response.character_voice_profile) {
@@ -306,19 +299,12 @@ Please analyze this character and recommend the best matching voice. Output a JS
             console.log('👤 角色声音画像:');
             console.log('   性别:', profile.perceived_gender || '-');
             console.log('   年龄:', profile.perceived_age || '-');
-            console.log('   语速:', profile.suggested_tempo || '-');
-            console.log('   音色:', profile.suggested_timbre || '-');
-            console.log('   情感:', profile.suggested_tone || '-');
+            console.log('   语调:', profile.suggested_tone || '-');
           }
           
           console.log('');
           console.log('🎯 推荐音色:', response.recommended_voice_id);
           console.log('💭 推荐理由:', response.reasoning);
-          
-          if (response.alternative_voice_id) {
-            console.log('🔄 备选音色:', response.alternative_voice_id);
-          }
-          
           console.log('⏱️ 耗时:', result.duration);
           console.log(LOG_DIVIDER);
           
@@ -328,10 +314,9 @@ Please analyze this character and recommend the best matching voice. Output a JS
               recommended_voice_id: response.recommended_voice_id,
               reasoning: response.reasoning,
               voice_profile: response.character_voice_profile,
-              alternative: response.alternative_voice_id,
             },
             duration: result.duration,
-            method: 'gemini',
+            method: 'qwen',
           };
         } catch (e) {
           console.error('❌ 解析音色推荐失败:', e);
@@ -350,53 +335,64 @@ Please analyze this character and recommend the best matching voice. Output a JS
   // 4. 生成视频 Prompt（Step 4）
   // ═══════════════════════════════════════════════════════════════════════════
   async generateVideoPrompt(imageDescription, voiceMetadata, selectedTags) {
-    console.log('🎬 生成视频 Prompt...', { selectedTags });
+    console.log('🎬 生成视频 Prompt（Qwen 235B）...', { selectedTags });
 
     if (!USE_AI_FOR_PROMPTS) {
       return this.mockGenerateVideoPrompt();
     }
 
     try {
-      const systemPrompt = AI_PROMPTS.videoGeneration.systemPrompt;
-      const scriptLibrary = AI_PROMPTS.videoGeneration.scriptLibrary;
-      
-      const userPrompt = `Selected Image Description: ${imageDescription}
-Selected Voice: ${JSON.stringify(voiceMetadata)}
-User-Selected Tags: ${JSON.stringify(selectedTags)}
-Candidate Scripts: ${JSON.stringify(scriptLibrary)}
+      const messages = [
+        {
+          role: 'system',
+          content: `你是一个视频创意导演。根据角色标签生成视频脚本和动作指令。
 
-Please analyze the character and select the best script with a detailed video prompt. Output a JSON object with character_persona, selected_script_id, script_text, video_model_prompt, motion_details, and reasoning.`;
+规则：
+1. 生成一句简短的开场台词（英文，10-15 词）
+2. 生成视频动作 Prompt（描述表情和动作）
+3. 推荐一个角色名字
+4. 直接输出 JSON，不要思考过程
 
-      const fullPrompt = systemPrompt + '\n\n' + userPrompt;
+输出格式：
+{
+  "character_persona": {
+    "personality": "性格特点",
+    "energy_level": "high/medium/low"
+  },
+  "script_text": "Hey there! I've been waiting for you...",
+  "video_model_prompt": "Close-up shot, character smiles warmly, gentle head tilt, maintaining eye contact",
+  "suggested_name": "角色名字",
+  "reasoning": "创意理由"
+}`
+        },
+        {
+          role: 'user',
+          content: `角色标签：${selectedTags.join(', ')}
+音色信息：${JSON.stringify(voiceMetadata || {})}
+
+生成一个吸引人的开场！`
+        }
+      ];
       
-      const result = await callGeminiAPI(fullPrompt, null); // 视频 prompt 不需要图片
+      const result = await callQwenAPI(messages, {
+        stream: false,
+        maxTokens: 350,
+        temperature: 0.8,
+      });
 
       if (result.success) {
         try {
-          let jsonText = result.text.trim();
-          if (jsonText.startsWith('```')) {
-            jsonText = jsonText.replace(/```json?\n?/g, '').replace(/```/g, '').trim();
-          }
+          const response = parseQwenResponse(result.text);
           
-          // 尝试找到 JSON 对象
-          const jsonMatch = jsonText.match(/\{[\s\S]*\}/);
-          if (jsonMatch) {
-            jsonText = jsonMatch[0];
-          }
-          
-          const response = JSON.parse(jsonText);
-          
-          // 🎯 在控制台美化输出
           console.log(LOG_DIVIDER);
-          console.log('🎬 STEP 4: Gemini 角色性格分析 & 视频 Prompt 生成');
+          console.log('🎬 STEP 4: Qwen 视频 Prompt 生成');
           console.log(LOG_DIVIDER);
           
           if (response.character_persona) {
             const persona = response.character_persona;
-            console.log('👤 角色性格分析:');
+            console.log('👤 角色性格:');
             console.log('   性格:', persona.personality || '-');
             console.log('   能量:', persona.energy_level || '-');
-            console.log('   风格:', persona.communication_style || '-');
           }
           
           if (response.suggested_name) {
@@ -405,38 +401,23 @@ Please analyze the character and select the best script with a detailed video pr
           }
           
           console.log('');
-          console.log('📝 选择脚本:', response.selected_script_id);
           console.log('💬 台词:', response.script_text);
-          console.log('');
-          console.log('🎥 视频生成指令:');
-          console.log('   ', response.video_model_prompt);
-          
-          if (response.motion_details) {
-            console.log('');
-            console.log('🎭 动作细节:');
-            console.log('   开场:', response.motion_details.opening || '-');
-            console.log('   说话时:', response.motion_details.during_speech || '-');
-            console.log('   结束:', response.motion_details.closing || '-');
-          }
-          
-          console.log('');
-          console.log('💭 选择理由:', response.reasoning);
+          console.log('🎥 视频指令:', response.video_model_prompt);
+          console.log('💭 理由:', response.reasoning);
           console.log('⏱️ 耗时:', result.duration);
           console.log(LOG_DIVIDER);
           
           return {
             success: true,
             videoData: {
-              selected_script_id: response.selected_script_id,
               script_text: response.script_text,
               video_model_prompt: response.video_model_prompt,
-              motion_details: response.motion_details,
               character_persona: response.character_persona,
               suggested_name: response.suggested_name,
               reasoning: response.reasoning,
             },
             duration: result.duration,
-            method: 'gemini',
+            method: 'qwen',
           };
         } catch (e) {
           console.error('❌ 解析视频数据失败:', e);
@@ -492,7 +473,6 @@ Please analyze the character and select the best script with a detailed video pr
     return {
       success: true,
       videoData: {
-        selected_script_id: 'intro_1',
         script_text: 'Hey there! Welcome to my world. Let me show you around.',
         video_model_prompt: 'A close-up shot, the character smiles warmly, eyes bright and welcoming, gentle head tilt, maintaining natural eye contact',
         reasoning: 'Default energetic and welcoming introduction.',
@@ -505,5 +485,5 @@ Please analyze the character and select the best script with a detailed video pr
 
 // 切换 AI 模式
 export function setUseAI(enabled) {
-  console.log(enabled ? '✅ 启用 Gemini AI 生成' : '⚠️ 切换到本地模板模式');
+  console.log(enabled ? '✅ 启用 Qwen AI 生成' : '⚠️ 切换到本地模板模式');
 }

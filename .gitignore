@@ -31,25 +31,19 @@ dist-ssr
 *.sln
 *.sw?
 
-# Animation Playground (开发演示用)
+# Development tools
 animation-playground.html
 animation-playground-pro.html
-
-# Components Playground (开发演示用)
 step2-components-playground.html
 step2-theme-playground.html
-
-# Test files
 api-test.html
 public/api-test.html
-
-# 个人工具（已移至 7verse-tools 独立仓库）
 public/model-arena.html
 public/prompt-arena.html
 public/prompt-tester.html
 public/tag-collector.html
 
-# Development documentation (内部文档/过程记录)
+# Internal documentation
 API策略说明-稳定优先版.md
 API配置说明.md
 Prompt版本管理和测试记录.md
@@ -58,15 +52,13 @@ README-测试指南.md
 新后端架构设计-Prompt优化版.md
 图生图模型评测表.md
 TEST-URL.md
-
-# docs 内部文档（已移至 7verse-tools）
 docs/DATA-LIBRARY-GUIDE.md
 docs/IMAGE-GENERATION-TEST-LOG.md
 docs/IMAGE-PROMPT-BEST-PRACTICES.md
 docs/PROMPTS-GUIDE.md
 
-# Cursor plans
+# Cursor
 .cursor/
 
-# Local Netlify folder
+# Netlify
 .netlify

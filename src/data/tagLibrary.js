@@ -1,16 +1,22 @@
 // ============================================================================
-// Tag Library - 多层标签体系 v2.3
+// Tag Library - L1 / L2 分层标签体系
 // ============================================================================
-// 按产品视角重新组织，参考 Janitor AI / Character AI 等竞品
-// 新增维度：gender（角色性别）、targeting（面向用户）、vibe（氛围/互动风格）、zodiac（星座）
-// ============================================================================
-
-// ============================================================================
-// Tier 1: Persona Tags - 角色人设（多选）
+// L1 = Persona（角色人设）
+// L2 = Relationship（关系定位）
+// 子类目精简，不再包含：星座(zodiac)、Gender。
+// 标签小工具 (tag-collector) 增删的标签写入 tagLibrary-custom.json，此处合并进 personaTags
 // ============================================================================
 
-export const personaTags = [
-  // ========== 社会身份 / Social Identity (20) ==========
+import customPersonaFromTool from './tagLibrary-custom.json';
+
+// ============================================================================
+// L1: Persona - 角色人设（多选）
+// ============================================================================
+// 子类目：identity / style / roleplay / content / vibe（共 5 个，不再细分）
+// ============================================================================
+
+const personaTagsBase = [
+  // ---------- Identity 社会身份 ----------
   { id: 'p1', label: 'CEO', labelCN: 'CEO / 霸总', emoji: '💼', category: 'persona', dimension: 'identity' },
   { id: 'p2', label: 'Doctor', labelCN: '医生', emoji: '🩺', category: 'persona', dimension: 'identity' },
   { id: 'p3', label: 'Artist', labelCN: '艺术家', emoji: '🎨', category: 'persona', dimension: 'identity' },
@@ -32,7 +38,7 @@ export const personaTags = [
   { id: 'p19', label: 'Dancer', labelCN: '舞者', emoji: '💃', category: 'persona', dimension: 'identity' },
   { id: 'p20', label: 'Streamer', labelCN: '主播', emoji: '🎮', category: 'persona', dimension: 'identity' },
 
-  // ========== 风格 / Style & Aesthetic (25) - 更有网感 ==========
+  // ---------- Style 风格 ----------
   { id: 'p21', label: 'Dark-Academia', labelCN: '暗黑学院风', emoji: '📖', category: 'persona', dimension: 'style' },
   { id: 'p22', label: 'Streetwear', labelCN: '街头潮流', emoji: '🛹', category: 'persona', dimension: 'style' },
   { id: 'p23', label: 'Cottagecore', labelCN: '田园风', emoji: '🌻', category: 'persona', dimension: 'style' },
@@ -59,7 +65,7 @@ export const personaTags = [
   { id: 'p44', label: 'Fantasy', labelCN: '奇幻风', emoji: '🏰', category: 'persona', dimension: 'style' },
   { id: 'p45', label: 'Sporty', labelCN: '运动风', emoji: '⚽', category: 'persona', dimension: 'style' },
 
-  // ========== Roleplay 人设 / Character Archetypes (20) ==========
+  // ---------- Roleplay 人设/设定 ----------
   { id: 'p46', label: 'Vampire', labelCN: '吸血鬼', emoji: '🧛', category: 'persona', dimension: 'roleplay' },
   { id: 'p47', label: 'Werewolf', labelCN: '狼人', emoji: '🐺', category: 'persona', dimension: 'roleplay' },
   { id: 'p48', label: 'Demon', labelCN: '恶魔', emoji: '😈', category: 'persona', dimension: 'roleplay' },
@@ -81,7 +87,7 @@ export const personaTags = [
   { id: 'p64', label: 'Witch', labelCN: '女巫', emoji: '🧙‍♀️', category: 'persona', dimension: 'roleplay' },
   { id: 'p65', label: 'Fallen-Angel', labelCN: '堕天使', emoji: '🖤', category: 'persona', dimension: 'roleplay' },
 
-  // ========== 内容类型 / Content Type (15) ==========
+  // ---------- Content 内容类型 ----------
   { id: 'p66', label: 'Career-Coach', labelCN: '职场教练', emoji: '🧭', category: 'persona', dimension: 'content' },
   { id: 'p67', label: 'Language-Tutor', labelCN: '语言陪练', emoji: '🗣️', category: 'persona', dimension: 'content' },
   { id: 'p68', label: 'Wellness-Coach', labelCN: '身心疗愈', emoji: '🧘', category: 'persona', dimension: 'content' },
@@ -98,7 +104,7 @@ export const personaTags = [
   { id: 'p79', label: 'Movie-TV', labelCN: '影视剧集', emoji: '🍿', category: 'persona', dimension: 'content' },
   { id: 'p80', label: 'ASMR', labelCN: 'ASMR / 助眠', emoji: '🎧', category: 'persona', dimension: 'content' },
 
-  // ========== 互动氛围 / Vibe & Dynamics (12) - 网感标签 ==========
+  // ---------- Vibe 互动氛围 ----------
   { id: 'p81', label: 'Dom', labelCN: '主导型 / S', emoji: '👑', category: 'persona', dimension: 'vibe' },
   { id: 'p82', label: 'Sub', labelCN: '服从型 / M', emoji: '🔗', category: 'persona', dimension: 'vibe' },
   { id: 'p83', label: 'Switch', labelCN: '可攻可受', emoji: '🔄', category: 'persona', dimension: 'vibe' },
@@ -111,50 +117,25 @@ export const personaTags = [
   { id: 'p90', label: 'Aloof', labelCN: '高冷疏离', emoji: '🧊', category: 'persona', dimension: 'vibe' },
   { id: 'p91', label: 'Teasing', labelCN: '爱捉弄人', emoji: '😜', category: 'persona', dimension: 'vibe' },
   { id: 'p92', label: 'Protective', labelCN: '保护欲强', emoji: '🛡️', category: 'persona', dimension: 'vibe' },
-
-  // ========== 星座 / Zodiac (12) ==========
-  { id: 'z1', label: 'Aries', labelCN: '白羊座', emoji: '♈', category: 'persona', dimension: 'zodiac' },
-  { id: 'z2', label: 'Taurus', labelCN: '金牛座', emoji: '♉', category: 'persona', dimension: 'zodiac' },
-  { id: 'z3', label: 'Gemini', labelCN: '双子座', emoji: '♊', category: 'persona', dimension: 'zodiac' },
-  { id: 'z4', label: 'Cancer', labelCN: '巨蟹座', emoji: '♋', category: 'persona', dimension: 'zodiac' },
-  { id: 'z5', label: 'Leo', labelCN: '狮子座', emoji: '♌', category: 'persona', dimension: 'zodiac' },
-  { id: 'z6', label: 'Virgo', labelCN: '处女座', emoji: '♍', category: 'persona', dimension: 'zodiac' },
-  { id: 'z7', label: 'Libra', labelCN: '天秤座', emoji: '♎', category: 'persona', dimension: 'zodiac' },
-  { id: 'z8', label: 'Scorpio', labelCN: '天蝎座', emoji: '♏', category: 'persona', dimension: 'zodiac' },
-  { id: 'z9', label: 'Sagittarius', labelCN: '射手座', emoji: '♐', category: 'persona', dimension: 'zodiac' },
-  { id: 'z10', label: 'Capricorn', labelCN: '摩羯座', emoji: '♑', category: 'persona', dimension: 'zodiac' },
-  { id: 'z11', label: 'Aquarius', labelCN: '水瓶座', emoji: '♒', category: 'persona', dimension: 'zodiac' },
-  { id: 'z12', label: 'Pisces', labelCN: '双鱼座', emoji: '♓', category: 'persona', dimension: 'zodiac' },
 ];
 
-// ============================================================================
-// 角色性别 / Character Gender（单选）
-// ============================================================================
-export const genderTags = [
-  { id: 'g1', label: 'Male', labelCN: '男性', emoji: '♂️', category: 'gender' },
-  { id: 'g2', label: 'Female', labelCN: '女性', emoji: '♀️', category: 'gender' },
-  { id: 'g3', label: 'Non-Binary', labelCN: '非二元', emoji: '⚧️', category: 'gender' },
-  { id: 'g4', label: 'Creature', labelCN: '非人类', emoji: '👾', category: 'gender', description: '机器人、怪物、精灵等' },
-];
+// 工具同步的自定义标签（tagLibrary-custom.json）合并进 L1 Persona
+const customPersonaTags = (Array.isArray(customPersonaFromTool) ? customPersonaFromTool : []).map((t, i) => ({
+  id: t.id || `c${i + 1}`,
+  label: t.label || '',
+  labelCN: t.label || '',
+  emoji: t.emoji || '🏷️',
+  category: 'persona',
+  dimension: t.dimension || 'custom',
+}));
+
+export const personaTags = [...personaTagsBase, ...customPersonaTags];
 
 // ============================================================================
-// 面向用户 / Targeting（单选）- 这个角色是为谁设计的
-// 用普通用户能懂的语言包装，避免 M4F 等术语
-// ============================================================================
-export const targetingTags = [
-  { id: 't1', label: 'For-Her', labelCN: '他是你的男神', emoji: '💙', category: 'targeting', targetCode: 'M4F', description: '男性角色，专为女生设计' },
-  { id: 't2', label: 'For-Him', labelCN: '她是你的女神', emoji: '💖', category: 'targeting', targetCode: 'F4M', description: '女性角色，专为男生设计' },
-  { id: 't3', label: 'BL', labelCN: '耽美 / 男男', emoji: '💜', category: 'targeting', targetCode: 'M4M', description: '男性角色，面向喜欢 BL 的用户' },
-  { id: 't4', label: 'GL', labelCN: '百合 / 女女', emoji: '🧡', category: 'targeting', targetCode: 'F4F', description: '女性角色，面向喜欢 GL 的用户' },
-  { id: 't5', label: 'Everyone', labelCN: '不限 / TA', emoji: '🌈', category: 'targeting', targetCode: 'AnyPOV', description: '性别自适应，谁都可以' },
-];
-
-// ============================================================================
-// Tier 2: Relationship Tags - 关系定位（单选）- 更有网感
+// L2: Relationship - 关系定位（单选）
 // ============================================================================
 
 export const relationshipTags = [
-  // 经典关系
   { id: 'r1', label: 'Soulmate', labelCN: '灵魂伴侣', emoji: '💞', category: 'relationship', description: 'Your perfect match, deeply connected' },
   { id: 'r2', label: 'Protector', labelCN: '守护者', emoji: '🛡️', category: 'relationship', description: 'Always watching over you' },
   { id: 'r3', label: 'Rival', labelCN: '对手', emoji: '⚔️', category: 'relationship', description: 'Competitive tension, pushing each other' },
@@ -166,7 +147,6 @@ export const relationshipTags = [
   { id: 'r9', label: 'Roommate', labelCN: '室友', emoji: '🏠', category: 'relationship', description: 'Sharing space, building connection' },
   { id: 'r10', label: 'Stranger', labelCN: '陌生人', emoji: '👀', category: 'relationship', description: 'Just met, instant chemistry' },
   { id: 'r11', label: 'Forbidden', labelCN: '禁忌之恋', emoji: '🚫', category: 'relationship', description: 'Should not, but cannot resist' },
-  // 网感关系
   { id: 'r12', label: 'Daddy', labelCN: 'Daddy / 霸道总裁', emoji: '🔥', category: 'relationship', description: 'Dominant, protective, takes charge' },
   { id: 'r13', label: 'Mommy', labelCN: 'Mommy / 姐姐', emoji: '💋', category: 'relationship', description: 'Nurturing, caring, in control' },
   { id: 'r14', label: 'Sugar-Daddy', labelCN: '金主爸爸', emoji: '💰', category: 'relationship', description: 'Spoils you with everything' },
@@ -179,40 +159,45 @@ export const relationshipTags = [
 ];
 
 // ============================================================================
-// Helper Functions
+// For You / Targeting（单选）- 这个角色是为谁设计的
 // ============================================================================
 
-// 获取所有标签（包括 gender 和 targeting）
-export const getAllTags = () => [...personaTags, ...relationshipTags, ...genderTags, ...targetingTags];
+export const targetingTags = [
+  { id: 't1', label: 'For-Her', labelCN: '他是你的男神', emoji: '💙', category: 'targeting', targetCode: 'M4F', description: '男性角色，专为女生设计' },
+  { id: 't2', label: 'For-Him', labelCN: '她是你的女神', emoji: '💖', category: 'targeting', targetCode: 'F4M', description: '女性角色，专为男生设计' },
+  { id: 't3', label: 'BL', labelCN: '耽美 / 男男', emoji: '💜', category: 'targeting', targetCode: 'M4M', description: '男性角色，面向喜欢 BL 的用户' },
+  { id: 't4', label: 'GL', labelCN: '百合 / 女女', emoji: '🧡', category: 'targeting', targetCode: 'F4F', description: '女性角色，面向喜欢 GL 的用户' },
+  { id: 't5', label: 'Everyone', labelCN: '不限 / TA', emoji: '🌈', category: 'targeting', targetCode: 'AnyPOV', description: '性别自适应，谁都可以' },
+];
 
-// 获取所有标签的 label 列表
+// ============================================================================
+// Helpers
+// ============================================================================
+
+export const getAllTags = () => [...personaTags, ...relationshipTags, ...targetingTags];
+
 export const getAllTagLabels = () => getAllTags().map(t => t.label);
 
-// 根据 ID 查找标签
 export const getTagById = (id) => getAllTags().find(t => t.id === id);
 
-// 根据 label 查找标签
 export const getTagByLabel = (label) => {
   if (!label) return null;
-  
   const cleanLabel = label
     .replace(/[\u{1F300}-\u{1F9FF}]/gu, '')
     .replace(/[^\w\s-]/g, '')
     .trim()
     .toLowerCase();
-  
   return getAllTags().find(t => {
     const cleanTagLabel = t.label.toLowerCase().replace(/-/g, '');
     const cleanInputLabel = cleanLabel.replace(/-/g, '').replace(/\s+/g, '');
-    
-    return t.label.toLowerCase() === cleanLabel || 
-           cleanTagLabel === cleanInputLabel ||
-           t.label.toLowerCase().includes(cleanLabel) ||
-           cleanLabel.includes(t.label.toLowerCase());
+    return t.label.toLowerCase() === cleanLabel ||
+      cleanTagLabel === cleanInputLabel ||
+      t.label.toLowerCase().includes(cleanLabel) ||
+      cleanLabel.includes(t.label.toLowerCase());
   });
 };
 
-// 获取分类后的标签（自动按 dimension 分组）
+// 按 L1/L2 与 Persona 子类目分组
 export const getTagsByCategory = () => {
   const dimensions = personaTags.reduce((acc, t) => {
     const key = t.dimension || 'other';
@@ -222,27 +207,24 @@ export const getTagsByCategory = () => {
   }, {});
 
   return {
+    // L1
     persona: {
       title: 'Persona',
-      subtitle: 'Define their personality',
+      titleCN: '角色人设',
+      subtitle: 'L1 · Define their personality',
       selectionMode: 'multi',
       tags: personaTags,
       dimensions,
     },
+    // L2
     relationship: {
       title: 'Relationship',
-      subtitle: 'Your connection with character',
+      titleCN: '关系定位',
+      subtitle: 'L2 · Your connection with character',
       selectionMode: 'single',
       shuffleEnabled: true,
       displayCount: 5,
       tags: relationshipTags,
-    },
-    gender: {
-      title: 'Gender',
-      titleCN: '角色性别',
-      subtitle: 'Character gender',
-      selectionMode: 'single',
-      tags: genderTags,
     },
     targeting: {
       title: 'For You',
@@ -254,22 +236,13 @@ export const getTagsByCategory = () => {
   };
 };
 
-// 仅获取 Persona 标签
 export const getPersonaTags = () => personaTags;
-
-// 仅获取 Relationship 标签
 export const getRelationshipTags = () => relationshipTags;
-
-// 获取 Gender 标签
-export const getGenderTags = () => genderTags;
-
-// 获取 Targeting 标签
 export const getTargetingTags = () => targetingTags;
 
 export default {
   personaTags,
   relationshipTags,
-  genderTags,
   targetingTags,
   getAllTags,
   getAllTagLabels,
@@ -278,6 +251,5 @@ export default {
   getTagsByCategory,
   getPersonaTags,
   getRelationshipTags,
-  getGenderTags,
   getTargetingTags,
 };

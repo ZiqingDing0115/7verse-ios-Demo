@@ -1,155 +1,65 @@
-// 音色库数据 - 使用真实的 ElevenLabs Voice ID
-// ⚠️ 这些 ID 是 ElevenLabs 官方预设音色，保证 TTS 可用
-// 📅 最后更新：2026-02-04
-// 🎯 设计原则：
-//    - 只保留英语音色
-//    - 用生动形容词代替名字
-//    - 多样性：非人类、儿童、老人等
+// 音色库数据 - [iOS] 7verse投稿音色库 by Katherine（Collection ID: O61D3sjuAajNAZz5xVCo）
+// 运行时优先从 ElevenLabs v2 API 按 collection_id 拉取，此处为备用/降级数据
+// 📅 最后更新：2026-02-06
 
-// ElevenLabs 预览音频 URL 格式
-const PREVIEW_BASE = 'https://storage.googleapis.com/eleven-public-prod/premade/voices';
+// 预览 URL：运行时由 API 返回的 preview_url 覆盖；此处占位
+const PREVIEW_PLACEHOLDER = null;
 
 export const VOICE_LIBRARY = [
-  // ========== Female Voices ==========
   {
-    id: 'EXAVITQu4vr4xnSDxMaL',
-    name: 'Sweet Girl',
-    gender: 'Female',
-    tags: ['Sweet', 'Young', 'Gentle', 'English'],
-    description: 'Soft and sweet young female, like your friendly neighbor',
-    previewUrl: `${PREVIEW_BASE}/EXAVITQu4vr4xnSDxMaL/manifest.json`,
+    id: 'gravel-midnight',
+    name: 'Gravel Midnight',
+    gender: 'Male',
+    tags: ['Deep', 'Grit', 'Character', 'English'],
+    description: 'A deep, rough character voice with heavy texture',
+    previewUrl: PREVIEW_PLACEHOLDER,
     recommended: true,
-    matchingPersona: ['Gentle', 'Playful', 'Sunshine'],
+    matchingPersona: ['Dark', 'Villain', 'Gritty'],
   },
   {
-    id: '21m00Tcm4TlvDq8ikWAM',
-    name: 'Mature Lady',
-    gender: 'Female',
-    tags: ['Mature', 'Calm', 'Professional', 'English'],
-    description: 'Sophisticated mature female, calm and composed',
-    previewUrl: `${PREVIEW_BASE}/21m00Tcm4TlvDq8ikWAM/manifest.json`,
-    matchingPersona: ['Elegant', 'Professional', 'Mentor'],
-  },
-  {
-    id: 'AZnzlk1XvdvUeBnXmlld',
-    name: 'Fierce Queen',
-    gender: 'Female',
-    tags: ['Strong', 'Bold', 'Fierce', 'English'],
-    description: 'Powerful and commanding, a true queen',
-    previewUrl: `${PREVIEW_BASE}/AZnzlk1XvdvUeBnXmlld/manifest.json`,
-    matchingPersona: ['Bold', 'Dominant', 'Villain'],
-  },
-  {
-    id: 'MF3mGyEYCl7XYWbV9V6O',
-    name: 'Bubbly Teen',
-    gender: 'Female',
-    tags: ['Young', 'Bubbly', 'Energetic', 'English'],
-    description: 'Enthusiastic teenage energy, full of life',
-    previewUrl: `${PREVIEW_BASE}/MF3mGyEYCl7XYWbV9V6O/manifest.json`,
-    matchingPersona: ['Playful', 'Chaotic', 'Tsundere'],
-  },
-  {
-    id: 'jsCqWAovK2LkecY7zXl4',
-    name: 'Wise Grandma',
-    gender: 'Female',
-    tags: ['Elderly', 'Warm', 'Wise', 'English'],
-    description: 'Loving grandmother voice, warm and nurturing',
-    previewUrl: `${PREVIEW_BASE}/jsCqWAovK2LkecY7zXl4/manifest.json`,
-    matchingPersona: ['Protective', 'Mentor', 'Gentle'],
-  },
-
-  // ========== Male Voices ==========
-  {
-    id: 'ErXwobaYiN019PkySvjV',
-    name: 'Alpha Male',
+    id: 'peter-parker-gamer',
+    name: 'Peter Parker gamer',
     gender: 'Male',
-    tags: ['Deep', 'Dominant', 'Powerful', 'English'],
-    description: 'Deep commanding voice, natural leader',
-    previewUrl: `${PREVIEW_BASE}/ErXwobaYiN019PkySvjV/manifest.json`,
-    matchingPersona: ['CEO', 'Mafia-Boss', 'Villain'],
+    tags: ['Young', 'Shy', 'Awkward', 'English'],
+    description: 'Add a single VO line in a shy, slightly awkward tone',
+    previewUrl: PREVIEW_PLACEHOLDER,
+    matchingPersona: ['Playful', 'Nerdy', 'Relatable'],
   },
   {
-    id: 'VR6AewLTigWG4xSOukaG',
-    name: 'Dark Lord',
+    id: 'bitchy-sassy-gay-friend',
+    name: 'bitchy sassy gay friend',
     gender: 'Male',
-    tags: ['Gravelly', 'Mysterious', 'Intense', 'English'],
-    description: 'Gravelly intense voice, perfect for villains',
-    previewUrl: `${PREVIEW_BASE}/VR6AewLTigWG4xSOukaG/manifest.json`,
-    matchingPersona: ['Demon', 'Vampire', 'Mysterious'],
+    tags: ['Expressive', 'Sassy', 'American', 'English'],
+    description: 'Young American male, early 20s, expressive and sassy',
+    previewUrl: PREVIEW_PLACEHOLDER,
+    matchingPersona: ['Sassy', 'Chaotic', 'Witty'],
   },
   {
-    id: 'pNInz6obpgDQGcFmaJgB',
-    name: 'Gentle Giant',
+    id: 'tom-hardy',
+    name: 'tom hardy',
     gender: 'Male',
-    tags: ['Deep', 'Warm', 'Friendly', 'English'],
-    description: 'Deep but warm, like a protective big brother',
-    previewUrl: `${PREVIEW_BASE}/pNInz6obpgDQGcFmaJgB/manifest.json`,
-    matchingPersona: ['Protector', 'Knight', 'Reliable'],
+    tags: ['Deep', 'British', 'Character', 'English'],
+    description: 'Tom Hardy style character voice',
+    previewUrl: PREVIEW_PLACEHOLDER,
+    matchingPersona: ['Bold', 'Gritty', 'Villain'],
   },
   {
-    id: 'yoZ06aMxZJJ28mfd3POQ',
-    name: 'Playful Boy',
-    gender: 'Male',
-    tags: ['Young', 'Energetic', 'Playful', 'English'],
-    description: 'Youthful energetic male, fun and spontaneous',
-    previewUrl: `${PREVIEW_BASE}/yoZ06aMxZJJ28mfd3POQ/manifest.json`,
-    matchingPersona: ['Playful', 'Mischievous', 'Idol'],
-  },
-  {
-    id: 'TxGEqnHWrfWFTfGW9XjX',
-    name: 'Grumpy Old Man',
-    gender: 'Male',
-    tags: ['Elderly', 'Gruff', 'Wise', 'English'],
-    description: 'Grumpy but lovable old man, secretly caring',
-    previewUrl: `${PREVIEW_BASE}/TxGEqnHWrfWFTfGW9XjX/manifest.json`,
-    matchingPersona: ['Grumpy', 'Mentor', 'Stoic'],
-  },
-
-  // ========== Special / Non-Human Voices ==========
-  {
-    id: 'flq6f7yk4E4fJM5XTYuZ',
-    name: 'Robot Butler',
-    gender: 'Neutral',
-    tags: ['Robotic', 'Precise', 'Polite', 'English'],
-    description: 'Precise robotic voice, helpful AI assistant',
-    previewUrl: `${PREVIEW_BASE}/flq6f7yk4E4fJM5XTYuZ/manifest.json`,
-    matchingPersona: ['Android', 'Professional', 'Hacker'],
-  },
-  {
-    id: 'XB0fDUnXU5powFXDhCwa',
-    name: 'Mischievous Imp',
-    gender: 'Neutral',
-    tags: ['Quirky', 'Mischievous', 'Playful', 'English'],
-    description: 'Impish and playful, full of tricks',
-    previewUrl: `${PREVIEW_BASE}/XB0fDUnXU5powFXDhCwa/manifest.json`,
-    matchingPersona: ['Demon', 'Chaotic', 'Mischievous'],
-  },
-  {
-    id: 'onwK4e9ZLuTAKqWW03F9',
-    name: 'Tiny Fairy',
+    id: 'taylor-swift',
+    name: 'Taylor Swift',
     gender: 'Female',
-    tags: ['Tiny', 'Magical', 'Cute', 'English'],
-    description: 'High-pitched magical creature, ethereal',
-    previewUrl: `${PREVIEW_BASE}/onwK4e9ZLuTAKqWW03F9/manifest.json`,
-    matchingPersona: ['Elf', 'Angel', 'Fairycore'],
+    tags: ['Young', 'American', 'Pop', 'English'],
+    description: 'Taylor Swift style voice',
+    previewUrl: PREVIEW_PLACEHOLDER,
+    matchingPersona: ['Playful', 'Sunshine', 'Gentle'],
   },
   {
-    id: 'g5CIjZEefAph4nQFvHAz',
-    name: 'Spooky Ghost',
-    gender: 'Neutral',
-    tags: ['Eerie', 'Whisper', 'Mysterious', 'English'],
-    description: 'Haunting whisper, ethereal presence',
-    previewUrl: `${PREVIEW_BASE}/g5CIjZEefAph4nQFvHAz/manifest.json`,
-    matchingPersona: ['Ghost', 'Mysterious', 'Fallen-Angel'],
-  },
-  {
-    id: 'SOYHLrjzK2X1ezoPC6cr',
-    name: 'Tiny Kid',
-    gender: 'Neutral',
-    tags: ['Child', 'Innocent', 'Cute', 'English'],
-    description: 'Adorable child voice, pure innocence',
-    previewUrl: `${PREVIEW_BASE}/SOYHLrjzK2X1ezoPC6cr/manifest.json`,
-    matchingPersona: ['Playful', 'Innocent', 'Sunshine'],
+    id: 'the-best-guy-friend-ian',
+    name: 'the best guy friend ian',
+    gender: 'Male',
+    tags: ['Warm', 'Natural', 'Friendly', 'English'],
+    description: 'Warm, natural male voice in his 19~20s. Friendly, casual, and relatable. Perfect for the best guy friend character.',
+    previewUrl: PREVIEW_PLACEHOLDER,
+    matchingPersona: ['Reliable', 'Friendly', 'Protector'],
   },
 ];
 
@@ -165,7 +75,7 @@ export function getVoiceById(id) {
 
 // 根据名称获取音色
 export function getVoiceByName(name) {
-  return VOICE_LIBRARY.find(voice => 
+  return VOICE_LIBRARY.find(voice =>
     voice.name.toLowerCase() === name.toLowerCase()
   );
 }
@@ -185,7 +95,7 @@ export function filterVoicesByTags(tags) {
 // 根据人设匹配音色
 export function matchVoiceByPersona(personaTags) {
   const matched = VOICE_LIBRARY.filter(voice =>
-    voice.matchingPersona?.some(p => 
+    voice.matchingPersona?.some(p =>
       personaTags.some(tag => tag.toLowerCase().includes(p.toLowerCase()))
     )
   );

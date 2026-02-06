@@ -1,8 +1,15 @@
-// API 配置文件 - Gemini + 7verse 图生图 + ElevenLabs 音色
+// API 配置文件 - Qwen + 7verse 图生图 + ElevenLabs 音色
 // 所有 API Keys 通过环境变量配置，请参考 .env.example
 
+/** 按 URL 切换 AI：?ai=gemini 用 Gemini，否则用 Qwen。便于一个地址测 Gemini、一个地址测 Qwen。 */
+export function getAIProvider() {
+  if (typeof window === 'undefined') return 'qwen';
+  const p = new URLSearchParams(window.location.search).get('ai');
+  return p === 'gemini' ? 'gemini' : 'qwen';
+}
+
 export const API_CONFIG = {
-  // Gemini API 配置（用于生成 Prompts）
+  // [已弃用] Gemini 配置保留作参考，实际 Prompts 使用 Qwen
   gemini: {
     apiKey: import.meta.env.VITE_GEMINI_API_KEY || '',
     model: 'gemini-2.0-flash',
@@ -27,7 +34,7 @@ export const API_CONFIG = {
   },
 };
 
-// 调用 Gemini API
+// 当 URL 带 ?ai=gemini 时使用；默认使用 callQwenAPI。
 export async function callGeminiAPI(prompt, imageBase64 = null) {
   const startTime = performance.now();
   const { gemini } = API_CONFIG;
@@ -451,6 +458,87 @@ export async function callElevenLabsSharedAPI() {
     
     console.error('❌ ElevenLabs 社区音色 API 调用失败:', error);
     
+    return {
+      success: false,
+      error: error.message,
+      voices: [],
+      duration: `${duration}s`,
+      durationMs: endTime - startTime,
+    };
+  }
+}
+
+// ============================================================================
+// ElevenLabs v2 API - 按 Collection 拉取音色（支持分页）
+// ============================================================================
+// 用法：callElevenLabsV2VoicesAPI({ collectionId: 'O61D3sjuAajNAZz5xVCo' })
+// 若不传 collectionId，则拉取全部 My Voices
+// ============================================================================
+export async function callElevenLabsV2VoicesAPI(options = {}) {
+  const startTime = performance.now();
+  const { elevenLabs } = API_CONFIG;
+  const { collectionId, pageSize = 100 } = options;
+
+  const allVoices = [];
+  let nextPageToken = null;
+  let pageCount = 0;
+
+  try {
+    const label = collectionId
+      ? `Collection(${collectionId})`
+      : '全部 My Voices';
+    console.log(`🎙️ 调用 ElevenLabs v2 API 拉取 ${label}...`);
+
+    do {
+      // 构建 query string
+      const params = new URLSearchParams();
+      params.set('page_size', String(pageSize));
+      if (collectionId) params.set('collection_id', collectionId);
+      if (nextPageToken) params.set('next_page_token', nextPageToken);
+
+      const url = `https://api.elevenlabs.io/v2/voices?${params.toString()}`;
+      const response = await fetch(url, {
+        method: 'GET',
+        headers: {
+          'xi-api-key': elevenLabs.apiKey,
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error('❌ ElevenLabs v2 API 错误:', response.status, errorText);
+        throw new Error(`ElevenLabs v2 API Error: ${response.status} - ${errorText}`);
+      }
+
+      const result = await response.json();
+      const voices = result.voices || [];
+      allVoices.push(...voices);
+      pageCount++;
+
+      console.log(`   📄 第 ${pageCount} 页: ${voices.length} 个音色`);
+
+      nextPageToken = result.has_more ? result.next_page_token : null;
+    } while (nextPageToken);
+
+    const endTime = performance.now();
+    const duration = ((endTime - startTime) / 1000).toFixed(2);
+
+    console.log(`✅ ElevenLabs v2 拉取完成，共 ${allVoices.length} 个音色，${pageCount} 页，耗时 ${duration}s`);
+
+    return {
+      success: true,
+      voices: allVoices,
+      pageCount,
+      duration: `${duration}s`,
+      durationMs: endTime - startTime,
+    };
+  } catch (error) {
+    const endTime = performance.now();
+    const duration = ((endTime - startTime) / 1000).toFixed(2);
+
+    console.error('❌ ElevenLabs v2 API 调用失败:', error);
+
     return {
       success: false,
       error: error.message,

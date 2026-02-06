@@ -1,9 +1,29 @@
 // Voice Service - ElevenLabs 音色库管理
 // 负责获取、缓存和转换 ElevenLabs 音色数据
-// 支持官方预设音色 + 社区共享音色
+// 📅 最后更新：2026-02-05
+// 🔄 实时同步：在 ElevenLabs 维护音色 → 前端 10 分钟内自动同步
 
-import { callElevenLabsOfficialAPI, callElevenLabsSharedAPI } from '../config/api';
+import { callElevenLabsOfficialAPI, callElevenLabsSharedAPI, callElevenLabsV2VoicesAPI } from '../config/api';
 import { VOICE_LIBRARY } from '../data/voiceLibrary';
+
+// ============================================================================
+// 音色库配置（运营可在此调整音色来源）
+// ============================================================================
+const VOICE_CONFIG = {
+  // 使用的音色类别（premade=官方预设，cloned=自定义克隆，generated=AI生成，professional=专业音色）
+  allowedCategories: ['premade', 'cloned', 'generated', 'professional'],
+  
+  // 是否包含社区共享音色（false = 只用自己账号的音色）
+  includeCommunityVoices: false,
+  
+  // 🆕 按 Collection ID 拉取（从 ElevenLabs 网页的 URL 获取，如 collectionId=O61D3sjuAajNAZz5xVCo）
+  // 若非空，则通过 v2 API 只拉取该 Collection 内的音色，忽略其他配置项
+  // 若为 null，则使用原有 v1 全库拉取逻辑
+  collectionId: 'O61D3sjuAajNAZz5xVCo', // [iOS] 7verse投稿音色库 by Katherine
+  
+  // 可选：只要名字包含特定关键词的音色（null = 全部，否则填数组）
+  nameKeywords: null, // 例如：['7verse', 'ios']
+};
 
 // 缓存的音色库数据
 let cachedVoices = null;
@@ -90,35 +110,132 @@ function transformSharedVoice(v) {
 }
 
 /**
- * 预获取并缓存 ElevenLabs 音色库（官方 + 社区）
+ * 将当前缓存的音色同步到 voiceLibrary.js + voiceLibrary.json（供后台读取）
+ * 仅在前端开发环境生效（POST 到 Vite 提供的 /api/voice-library/sync）
+ * @param {Array} voices - 音色列表（含 id/name/gender/tags/description/previewUrl）
+ */
+async function syncVoicesToFiles(voices) {
+  if (!voices || voices.length === 0) return;
+  const payload = voices.map((v) => ({
+    id: v.id,
+    name: v.name,
+    gender: v.gender,
+    tags: v.tags || [],
+    description: v.description || '',
+    previewUrl: v.previewUrl || null,
+    matchingPersona: v.matchingPersona || v.tags || [],
+  }));
+  try {
+    const res = await fetch('/api/voice-library/sync', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ voices: payload }),
+    });
+    const data = await res.json().catch(() => ({}));
+    if (res.ok && data.ok) {
+      console.log(`📂 音色已同步到 voiceLibrary.js / voiceLibrary.json，共 ${data.count} 个（后台可直接读取）`);
+    } else {
+      console.warn('⚠️ 音色同步到文件失败（可能非 dev 环境）:', data.error || res.status);
+    }
+  } catch (e) {
+    console.warn('⚠️ 音色同步请求失败:', e.message);
+  }
+}
+
+/**
+ * 预获取并缓存 ElevenLabs 音色库
+ * 若配置了 collectionId，使用 v2 API 按 Collection 拉取；否则使用 v1 拉取全库
  * @returns {Promise<Object>} - 包含音色列表的结果对象
  */
 export async function prefetchVoices() {
   console.log(LOG_DIVIDER);
-  console.log('🎙️ 预加载 ElevenLabs 音色库（官方 + 社区）...');
+  console.log('🎙️ 预加载 ElevenLabs 音色库（实时同步）...');
+  console.log('📋 配置:');
+  console.log('   类别:', VOICE_CONFIG.allowedCategories.join(', '));
+  console.log('   社区音色:', VOICE_CONFIG.includeCommunityVoices ? '✅ 开启' : '❌ 关闭');
+  if (VOICE_CONFIG.collectionId) {
+    console.log('   🆕 Collection ID:', VOICE_CONFIG.collectionId, '(使用 v2 API)');
+  }
+  if (VOICE_CONFIG.nameKeywords) {
+    console.log('   关键词筛选:', VOICE_CONFIG.nameKeywords.join(', '));
+  }
   console.log(LOG_DIVIDER);
   
   try {
-    // 并行获取官方和社区音色
+    // ========== 分支：按 Collection ID 拉取（v2 API）==========
+    if (VOICE_CONFIG.collectionId) {
+      const result = await callElevenLabsV2VoicesAPI({
+        collectionId: VOICE_CONFIG.collectionId,
+      });
+
+      if (!result.success || result.voices.length === 0) {
+        console.warn('⚠️ Collection 拉取失败或为空，使用本地备用');
+        return useFallbackVoices();
+      }
+
+      // 转换并可选按 category 过滤
+      const collectionVoices = [];
+      result.voices.forEach(v => {
+        if (VOICE_CONFIG.allowedCategories.length > 0 &&
+            !VOICE_CONFIG.allowedCategories.includes(v.category)) {
+          return;
+        }
+        collectionVoices.push(transformOfficialVoice(v));
+      });
+
+      cachedVoices = collectionVoices;
+      cacheTimestamp = Date.now();
+
+      console.log(`✅ Collection 音色加载成功！共 ${cachedVoices.length} 个`);
+      cachedVoices.slice(0, Math.min(10, cachedVoices.length)).forEach((voice, i) => {
+        console.log(`   ${i + 1}. ${voice.name} (${voice.gender}) - ${voice.category}`);
+      });
+      console.log(LOG_DIVIDER);
+
+      // 实时同步到 voiceLibrary.js / voiceLibrary.json，供后台读取
+      await syncVoicesToFiles(cachedVoices);
+
+      return {
+        success: true,
+        voices: cachedVoices,
+        count: cachedVoices.length,
+        officialCount: cachedVoices.length,
+        sharedCount: 0,
+        source: 'elevenlabs_collection',
+      };
+    }
+
+    // ========== 原有逻辑：v1 全库拉取 ==========
     const [officialResult, sharedResult] = await Promise.all([
       callElevenLabsOfficialAPI(),
-      callElevenLabsSharedAPI(),
+      VOICE_CONFIG.includeCommunityVoices 
+        ? callElevenLabsSharedAPI() 
+        : Promise.resolve({ success: false, voices: [] }),
     ]);
     
     const officialVoices = [];
     const sharedVoices = [];
     
-    // 处理官方音色
+    // 处理我的音色
     if (officialResult.success && officialResult.voices.length > 0) {
       officialResult.voices.forEach(v => {
-        // 只保留 premade 类型的官方音色
-        if (v.category === 'premade') {
-          officialVoices.push(transformOfficialVoice(v));
+        if (!VOICE_CONFIG.allowedCategories.includes(v.category)) {
+          return;
         }
+        
+        // 可选：按名字关键词筛选
+        if (VOICE_CONFIG.nameKeywords && VOICE_CONFIG.nameKeywords.length > 0) {
+          const nameMatch = VOICE_CONFIG.nameKeywords.some(keyword => 
+            v.name.toLowerCase().includes(keyword.toLowerCase())
+          );
+          if (!nameMatch) return;
+        }
+        
+        officialVoices.push(transformOfficialVoice(v));
       });
-      console.log(`✅ 官方音色: ${officialVoices.length} 个`);
+      console.log(`✅ 我的音色: ${officialVoices.length} 个`);
     } else {
-      console.warn('⚠️ 获取官方音色失败或为空');
+      console.warn('⚠️ 获取音色失败或为空');
     }
     
     // 处理社区音色
@@ -131,7 +248,6 @@ export async function prefetchVoices() {
       console.warn('⚠️ 获取社区音色失败或为空');
     }
     
-    // 合并：官方音色在前，社区音色在后
     cachedVoices = [...officialVoices, ...sharedVoices];
     cacheTimestamp = Date.now();
     
@@ -141,21 +257,26 @@ export async function prefetchVoices() {
     }
     
     console.log(`✅ 音色库加载成功！`);
-    console.log(`   📊 总共 ${cachedVoices.length} 个音色（官方 ${officialVoices.length} + 社区 ${sharedVoices.length}）`);
+    console.log(`   📊 总共 ${cachedVoices.length} 个音色（我的 ${officialVoices.length} + 社区 ${sharedVoices.length}）`);
     
     // 显示部分音色预览
-    console.log('   🎤 官方音色预览:');
-    officialVoices.slice(0, 3).forEach((voice, i) => {
-      console.log(`      ${i + 1}. 🏆 ${voice.name} (${voice.gender}) - ${voice.accent}`);
+    console.log('   🎤 我的音色预览:');
+    officialVoices.slice(0, 5).forEach((voice, i) => {
+      console.log(`      ${i + 1}. ${voice.category === 'premade' ? '🏆' : '✨'} ${voice.name} (${voice.gender}) - ${voice.category}`);
     });
     
-    console.log('   🎤 社区音色预览:');
-    sharedVoices.slice(0, 3).forEach((voice, i) => {
-      console.log(`      ${i + 1}. 👥 ${voice.name} (${voice.gender}) - ${voice.accent}`);
-    });
+    if (sharedVoices.length > 0) {
+      console.log('   🎤 社区音色预览:');
+      sharedVoices.slice(0, 3).forEach((voice, i) => {
+        console.log(`      ${i + 1}. 👥 ${voice.name} (${voice.gender}) - ${voice.accent}`);
+      });
+    }
     
     console.log(LOG_DIVIDER);
-    
+
+    // 实时同步到 voiceLibrary.js / voiceLibrary.json，供后台读取
+    await syncVoicesToFiles(cachedVoices);
+
     return {
       success: true,
       voices: cachedVoices,
@@ -272,7 +393,26 @@ export function getVoiceLibraryStatus() {
     communityCount: cachedVoices?.filter(v => !v.isOfficial).length || 0,
     cacheAge: cacheTimestamp ? Date.now() - cacheTimestamp : null,
     isStale: cacheTimestamp ? (Date.now() - cacheTimestamp > CACHE_DURATION) : true,
+    config: VOICE_CONFIG, // 当前配置
   };
+}
+
+/**
+ * 更新音色库配置（运营用）
+ * @param {Object} newConfig - 新配置（只需提供要更新的字段）
+ * @returns {Promise<void>}
+ * 
+ * 示例：
+ *   updateVoiceConfig({ collectionId: 'O61D3sjuAajNAZz5xVCo' })
+ *   updateVoiceConfig({ includeCommunityVoices: true })
+ */
+export async function updateVoiceConfig(newConfig) {
+  console.log('🔧 更新音色库配置...', newConfig);
+  Object.assign(VOICE_CONFIG, newConfig);
+  // 强制刷新缓存
+  const result = await prefetchVoices();
+  console.log('✅ 配置已更新并重新加载音色库');
+  return result;
 }
 
 // 导出服务对象
@@ -284,4 +424,5 @@ export const voiceService = {
   getOfficialVoices,
   getCommunityVoices,
   getVoiceLibraryStatus,
+  updateVoiceConfig, // 🆕 运营可用此动态更新配置
 };

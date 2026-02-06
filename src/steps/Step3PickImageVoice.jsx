@@ -256,11 +256,11 @@ const Step3PickImageVoice = () => {
         console.warn('⚠️ 没有选择标签！将使用默认标签');
       }
       
-      // 1. 使用 AI 生成 4 个不同风格的 prompts
+      // 1. 使用 AI 生成 4 个不同风格的 prompts（只传 Persona，不传 Relationship，避免生图出现两人）
       console.log('🧠 生成图生图 Prompts...');
       const promptResult = await aiService.generateImagePrompts(
         formData.uploadedImage,
-        tagLabels  // 传递标签文本，不是 ID
+        personaLabels  // 仅 Persona 标签，不传 Relationship
       );
 
       if (!promptResult.success) {
@@ -620,18 +620,18 @@ const Step3PickImageVoice = () => {
         ) : (
           <div className="flex-1 flex flex-col min-h-0">
             {/* 音色库标题 */}
-            <div className="flex justify-between items-center mb-4 flex-shrink-0">
+            <div className="flex justify-between items-center mb-3 flex-shrink-0">
               <button 
                 onClick={() => setView('image')}
                 className="text-white text-2xl"
               >
                 ←
               </button>
-              <h2 className="text-xl font-bold text-white">Pick a voice</h2>
+              <h2 className="text-lg font-bold text-white">Pick a voice</h2>
               <div className="w-8" />
             </div>
 
-            {/* 克隆音色按钮 */}
+            {/* 克隆音色按钮 - 收起为紧凑版 */}
             <input
               ref={voiceFileInputRef}
               type="file"
@@ -642,62 +642,64 @@ const Step3PickImageVoice = () => {
             <button 
               onClick={() => voiceFileInputRef.current?.click()}
               disabled={isUploadingVoice}
-              className={`w-full bg-gradient-to-r from-purple-600 to-pink-600 rounded-2xl p-4 flex items-center justify-between mb-4 hover:opacity-90 transition-all flex-shrink-0 ${
+              className={`w-full bg-gradient-to-r from-purple-600 to-pink-600 rounded-xl p-3 flex items-center justify-between mb-3 hover:opacity-90 transition-all flex-shrink-0 ${
                 isUploadingVoice ? 'opacity-50 cursor-not-allowed' : ''
               } ${clonedVoiceUrl ? 'ring-2 ring-green-400' : ''}`}
             >
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center">
+              <div className="flex items-center gap-2">
+                <div className="w-8 h-8 bg-white/20 rounded-full flex items-center justify-center">
                   {isUploadingVoice ? (
-                    <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+                    <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
                   ) : clonedVoiceUrl ? (
-                    <svg className="w-5 h-5 text-green-400" fill="currentColor" viewBox="0 0 24 24">
+                    <svg className="w-4 h-4 text-green-400" fill="currentColor" viewBox="0 0 24 24">
                       <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z" />
                     </svg>
                   ) : (
-                    <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" />
                     </svg>
                   )}
                 </div>
                 <div className="text-left">
-                  <p className="text-white font-semibold text-sm">
+                  <p className="text-white font-medium text-xs">
                     {clonedVoiceUrl ? clonedVoiceName || 'Voice Uploaded' : 'Clone Your Voice'}
                   </p>
-                  <p className="text-white/70 text-xs">
-                    {isUploadingVoice ? 'Uploading...' : clonedVoiceUrl ? '✓ Ready to use' : 'Upload your audio file'}
+                  <p className="text-white/60 text-[10px]">
+                    {isUploadingVoice ? 'Uploading...' : clonedVoiceUrl ? '✓ Ready' : 'Upload audio'}
                   </p>
                 </div>
               </div>
-              <span className="text-white text-xl">{clonedVoiceUrl ? '✓' : '+'}</span>
+              <span className="text-white text-lg">{clonedVoiceUrl ? '✓' : '+'}</span>
             </button>
 
-            {/* 当前选中的音色 */}
-            <div className="bg-gray-800/60 rounded-2xl p-4 flex items-center justify-between mb-4 flex-shrink-0">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-white rounded-full flex items-center justify-center">
-                  <svg className="w-5 h-5 text-black" fill="currentColor" viewBox="0 0 24 24">
-                    <path d="M8 5v14l11-7z" />
-                  </svg>
+            {/* 当前选中的音色 - 收起为紧凑版 */}
+            {selectedVoice && (
+              <div className="bg-gray-800/60 rounded-xl p-2.5 flex items-center justify-between mb-3 flex-shrink-0">
+                <div className="flex items-center gap-2">
+                  <div className="w-8 h-8 bg-white rounded-full flex items-center justify-center">
+                    <svg className="w-4 h-4 text-black" fill="currentColor" viewBox="0 0 24 24">
+                      <path d="M8 5v14l11-7z" />
+                    </svg>
+                  </div>
+                  <div>
+                    <p className="text-white font-medium text-xs">
+                      {getVoiceName(selectedVoice)}
+                    </p>
+                    <p className="text-gray-400 text-[10px]">
+                      {selectedVoice === aiRecommendedVoice ? '✨ AI' : 'Selected'}
+                    </p>
+                  </div>
                 </div>
-                <div>
-                  <p className="text-white font-medium text-sm">
-                    {getVoiceName(selectedVoice)}
-                  </p>
-                  <p className="text-gray-400 text-xs">
-                    · {selectedVoice === aiRecommendedVoice && selectedVoice ? 'AI Recommend' : selectedVoice ? 'Selected' : 'None selected'}
-                  </p>
-                </div>
+                <span className="text-green-400 text-xs">✓</span>
               </div>
-              <span className="text-green-400 text-sm">✓</span>
-            </div>
+            )}
 
-            {/* 分类标签 */}
-            <div className="flex gap-2 mb-4 overflow-x-auto pb-2 scrollbar-hide flex-shrink-0">
+            {/* 分类标签 - 更紧凑 */}
+            <div className="flex gap-2 mb-3 overflow-x-auto pb-1 scrollbar-hide flex-shrink-0">
               {voiceCategories.map((category) => (
                 <button
                   key={category}
-                  className={`px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap transition-all ${
+                  className={`px-3 py-1.5 rounded-full text-xs font-medium whitespace-nowrap transition-all ${
                     category === 'All'
                       ? 'bg-white text-black'
                       : 'bg-gray-800/60 text-gray-400'
@@ -723,9 +725,9 @@ const Step3PickImageVoice = () => {
               </div>
             )}
 
-            {/* 音色列表 */}
+            {/* 音色列表 - 更紧凑的间距 */}
             {!voiceLibraryLoading && (
-              <div className="space-y-3 flex-1 overflow-y-auto pb-4">
+              <div className="space-y-2 flex-1 overflow-y-auto pb-4">
                 {voices.map((voice, index) => {
                   const isAIRecommended = voice.id === aiRecommendedVoice;
                   const isPlaying = playingVoiceId === voice.id;
@@ -740,30 +742,32 @@ const Step3PickImageVoice = () => {
                     <React.Fragment key={voice.id}>
                       {/* 分隔标题 */}
                       {showDivider && (
-                        <div className="flex items-center gap-2 pt-2 pb-1">
+                        <div className="flex items-center gap-2 py-1">
                           <div className="h-px flex-1 bg-gray-700"></div>
-                          <span className="text-gray-500 text-xs">社区音色</span>
+                          <span className="text-gray-500 text-[10px]">社区音色</span>
                           <div className="h-px flex-1 bg-gray-700"></div>
                         </div>
                       )}
-                      {/* 第一个官方音色前的标题 */}
-                      {index === 0 && isOfficial && (
+                      {/* 第一个音色前显示来源标识 */}
+                      {index === 0 && (
                         <div className="flex items-center gap-2 pb-1">
-                          <span className="text-amber-400 text-xs font-medium">🏆 官方音色</span>
+                          <span className="text-amber-400 text-[10px] font-medium">
+                            {isOfficial ? '🏆 我的音色库' : '👥 社区音色'}
+                          </span>
                         </div>
                       )}
                       <div
                         onClick={() => handleVoiceSelect(voice.id)}
-                        className={`w-full bg-gray-800/60 rounded-3xl p-4 flex items-center justify-between transition-all cursor-pointer ${
+                        className={`w-full bg-gray-800/60 rounded-2xl p-3 flex items-center justify-between transition-all cursor-pointer ${
                           selectedVoice === voice.id ? 'ring-2 ring-white' : ''
                         } ${isAIRecommended ? 'ring-2 ring-purple-400' : ''} ${isOfficial ? 'border-l-2 border-amber-400' : ''}`}
                       >
-                        <div className="flex items-center gap-3">
-                          {/* 播放按钮 */}
+                        <div className="flex items-center gap-2">
+                          {/* 播放按钮 - 更小 */}
                           <button
                             onClick={(e) => handlePlayVoice(e, voice)}
                             disabled={!hasPreview}
-                            className={`w-10 h-10 rounded-full flex items-center justify-center transition-all ${
+                            className={`w-8 h-8 rounded-full flex items-center justify-center transition-all flex-shrink-0 ${
                               isPlaying 
                                 ? 'bg-purple-500' 
                                 : hasPreview 
@@ -785,14 +789,14 @@ const Step3PickImageVoice = () => {
                               </svg>
                             )}
                           </button>
-                          <div className="text-left">
-                            <p className="text-white font-medium text-sm flex items-center gap-1">
+                          <div className="text-left min-w-0 flex-1">
+                            <p className="text-white font-medium text-xs flex items-center gap-1 truncate">
                               {voice.name}
-                              {isOfficial && <span className="text-amber-400 text-xs">🏆</span>}
-                              {isAIRecommended && <span className="text-purple-300 text-xs">✨ AI推荐</span>}
+                              {isOfficial && <span className="text-amber-400 text-[10px]">🏆</span>}
+                              {isAIRecommended && <span className="text-purple-300 text-[9px] bg-purple-500/20 px-1 py-0.5 rounded flex-shrink-0">✨ AI</span>}
                             </p>
-                            <p className="text-gray-500 text-xs">
-                              {voice.gender} · {voice.accent || voice.tags?.slice(0, 2).join(', ') || voice.description?.substring(0, 25)}
+                            <p className="text-gray-500 text-[10px] truncate">
+                              {voice.gender} · {voice.accent || voice.tags?.slice(0, 2).join(', ') || voice.description?.substring(0, 20)}
                             </p>
                           </div>
                         </div>

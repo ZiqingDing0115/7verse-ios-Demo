@@ -172,6 +172,13 @@ NOT just style transfer - create SCENES that match the character's IDENTITY!
 - profile view (mysterious)
 - dramatic side lighting (artistic)
 
+═══ RELATIONSHIP TAG (CRITICAL) ═══
+User may pass a Relationship tag (e.g. Soulmate, Best Friend). It means "the USER's relationship TO this character", NOT "draw two people in the scene". Every image must show ONLY THIS ONE CHARACTER. Use mood/atmosphere to suggest the relationship (e.g. warm, trusting) in a single-person scene.
+
+═══ SINGLE PERSON ONLY (MANDATORY) ═══
+Each image must show ONLY ONE PERSON (the same face). NEVER describe a second person.
+FORBIDDEN phrases: "side by side", "two people", "looking at each other", "eye contact with another", "soulmate connection" (as two bodies). Use single-person: "gazing at viewer", "walking alone at golden hour".
+
 OUTPUT FORMAT (JSON only):
 {
   "prompts": [

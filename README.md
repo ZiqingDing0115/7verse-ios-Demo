@@ -5,10 +5,10 @@
 ## 🔗 测试地址（固定）
 
 ```
-http://localhost:5173
+http://localhost:5174
 ```
 
-> 💡 如果 5173 端口被占用，会自动使用 5174、5175 等
+> ⚠️ 端口在 `vite.config.js` 中固定为 **5174**。启动后请以终端输出为准：`Local: http://localhost:5174/`
 
 ## ✨ 核心功能
 
@@ -53,8 +53,8 @@ cp .env.example .env.local
 # 4. 启动开发服务器
 npm run dev
 
-# 5. 打开浏览器访问
-# http://localhost:5173
+# 5. 打开浏览器访问（端口固定 5174）
+# http://localhost:5174
 ```
 
 ## ⚙️ 环境变量配置
@@ -71,7 +71,8 @@ VITE_GEMINI_API_KEY=your_gemini_api_key
 VITE_7VERSE_TOKEN=your_7verse_token
 
 # ElevenLabs API（必需）
-# 获取地址：https://elevenlabs.io/
+# 获取地址：https://elevenlabs.io/ → Profile → API Keys
+# 音色库会从你的账号实时同步（My Voices），支持 10 分钟缓存自动刷新
 VITE_ELEVENLABS_API_KEY=your_elevenlabs_api_key
 ```
 
@@ -114,7 +115,9 @@ src/
 ├── context/
 │   └── AppContext.jsx   # 全局状态管理
 ├── data/
-│   ├── tagLibrary.js    # 100 个标签定义
+│   ├── tagLibrary.js    # 主流程标签库入口（见下表）
+│   ├── tagLibrary-custom.json   # 标签小工具写入的自定义 Persona
+│   ├── contentTagLibrary.js     # Step4 发布/内容标签
 │   ├── voiceLibrary.js  # 音色库备用数据
 │   └── waitingPhrases.js # TTS 等待语句
 ├── services/
@@ -131,6 +134,14 @@ src/
 └── index.css            # 全局样式
 ```
 
+### 标签库文件说明（TagLibrary）
+
+| 文件 | 用途 | 是否接入主流程 |
+|------|------|----------------|
+| `tagLibrary.js` | 主流程用的 TagLibrary 入口 | ✅ 是 |
+| `tagLibrary-custom.json` | 标签小工具写入的自定义 Persona | ✅ 通过 tagLibrary.js 合并后接入 |
+| `contentTagLibrary.js` | Step4 发布/内容标签（hashtag 推荐与搜索） | ✅ 仅 Step4 |
+
 ## 🎯 Prompt 系统
 
 项目使用 4 个 AI Prompt 驱动核心功能：
@@ -143,6 +154,11 @@ src/
 | 视频生成 | 生成视频脚本 | 图片 + 标签 + 音色 | 角色名称 + 脚本 |
 
 Prompt 定义位置：`src/config/prompts-library.js`
+
+详细文档：
+- 📖 **[Prompts 使用指南](./docs/PROMPTS-GUIDE.md)** - Prompt 文案、版本管理、测试工具
+- 🎙️ **[音色库维护指南](./docs/VOICE-LIBRARY-GUIDE.md)** - ElevenLabs 音色实时同步、运营维护流程
+- 📡 **[后端 API 规范](./docs/BACKEND_API_SPEC.md)** - API 接口文档（供后端对接）
 
 ## 🌐 Vercel 部署
 
@@ -209,6 +225,9 @@ A: 检查 7verse Token 是否过期，联系团队获取新 Token。
 
 ### Q: 没有声音播放？
 A: 检查 ElevenLabs API Key 是否正确，浏览器是否允许自动播放。
+
+### Q: 如何维护音色库？
+A: 音色库从 ElevenLabs 账号实时同步（10 分钟缓存）。在 [ElevenLabs 网站](https://elevenlabs.io/app/voice-library) 的 My Voices 里添加/编辑/删除音色，前端会自动同步。详见 **[音色库维护指南](./docs/VOICE-LIBRARY-GUIDE.md)**。
 
 ### Q: Gemini API 报错？
 A: 确认 API Key 有效，检查是否超出配额限制。

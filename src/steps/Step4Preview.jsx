@@ -192,7 +192,7 @@ const Step4Preview = () => {
       }
 
       setIsGeneratingVideo(true);
-      console.log('🎬 开始调用 Gemini 生成视频 Prompt...');
+      console.log('🎬 开始调用 Qwen 生成视频 Prompt...');
 
       try {
         // 获取所需数据
@@ -212,7 +212,7 @@ const Step4Preview = () => {
         );
 
         if (result.success && result.videoData) {
-          console.log('✅ Gemini 生成的视频数据:');
+          console.log('✅ Qwen 生成的视频数据:');
           console.log('   推荐名称:', result.videoData.suggested_name);
           console.log('   脚本 ID:', result.videoData.selected_script_id);
           console.log('   脚本文本:', result.videoData.script_text);

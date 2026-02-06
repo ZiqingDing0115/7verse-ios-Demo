@@ -1,4 +1,4 @@
-// 测试工具初始化 - Gemini + 7verse
+// 测试工具初始化 - Qwen + 7verse
 
 import { imageService, getCurrentModel } from './services/imageService';
 import { aiService } from './services/aiService';
@@ -8,7 +8,7 @@ console.log('🚀 AI 图片生成服务已配置');
 console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
 console.log('');
 console.log('📋 当前配置:');
-console.log('  • Prompt 生成: Gemini 2.0 Flash');
+console.log('  • Prompt 生成: Qwen 235B');
 console.log('  • 图生图: 7verse Seedream');
 console.log('  • 模型:', getCurrentModel().name);
 console.log('');
@@ -26,9 +26,9 @@ window.testTools = {
   aiService,
   getCurrentModel,
   
-  // 测试 Gemini Prompt 生成
-  async testGeminiPrompts(tags = ['Professional', 'Creative', 'Warm']) {
-    console.log('🧪 测试 Gemini Prompt 生成...');
+  // 测试 Qwen Prompt 生成
+  async testQwenPrompts(tags = ['Professional', 'Creative', 'Warm']) {
+    console.log('🧪 测试 Qwen Prompt 生成...');
     console.log('  输入标签:', tags);
     
     const result = await aiService.generateImagePrompts(null, tags);
@@ -104,9 +104,9 @@ window.testTools = {
     console.log('');
     console.log('🎮 可用命令:');
     console.log('');
-    console.log('  testTools.testGeminiPrompts(tags)');
-    console.log('    测试 Gemini Prompt 生成');
-    console.log('    示例: testTools.testGeminiPrompts(["Creative", "Warm"])');
+    console.log('  testTools.testQwenPrompts(tags)');
+    console.log('    测试 Qwen Prompt 生成');
+    console.log('    示例: testTools.testQwenPrompts(["Creative", "Warm"])');
     console.log('');
     console.log('  testTools.test7verseAPI(prompt)');
     console.log('    单独测试 7verse 图生图');

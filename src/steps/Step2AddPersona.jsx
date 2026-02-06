@@ -124,7 +124,7 @@ const Step2AddPersona = () => {
       }
 
       setIsLoadingAI(true);
-      console.log('🤖 开始调用 Gemini 推荐标签...');
+      console.log('🤖 开始调用 Qwen 推荐标签...');
 
       try {
         const result = await aiService.recommendTags(formData.uploadedImage);
@@ -198,7 +198,7 @@ const Step2AddPersona = () => {
       if (isRecommendingVoice) return;
 
       setIsRecommendingVoice(true);
-      console.log('🎙️ 开始调用 Gemini 推荐音色（后台）...');
+      console.log('🎙️ 开始调用 Qwen 推荐音色（后台）...');
 
       try {
         const result = await aiService.recommendVoice(
@@ -211,7 +211,7 @@ const Step2AddPersona = () => {
           const { recommended_voice_id, reasoning, voice_profile, alternative } = result.recommendation;
           const voiceInfo = voiceLibrary.find(v => v.id === recommended_voice_id);
           
-          console.log('✅ Gemini 推荐的音色:', recommended_voice_id);
+          console.log('✅ Qwen 推荐的音色:', recommended_voice_id);
           
           updateFormData('aiRecommendedVoice', recommended_voice_id);
           updateFormData('aiVoiceReasoning', reasoning);
